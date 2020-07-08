@@ -1,10 +1,10 @@
 /// file: ReadConfigurationFile.h header for ReadConfigurationFile class  
 /// author: Bennett Cook
-/// date: 11-23-2019
-/// description: read in a json file and and populate an HmmConfiguration 
+/// date: 07-08-2020
+/// description: read in a json file and and populate an config 
 /// struct. This class uses a boost::property_tree as the read-in/container 
 /// for the config. But the configuration data has to be converted to 
-/// the HmmConfiguration members so there are 3 template functions for 
+/// the AppConfig members so there are 3 template functions for 
 /// the more complex conversions.
 
 
@@ -21,7 +21,6 @@
 #include <iomanip>
 
 #include "CommonDef.h"
-#include "Utils.h"
   
 using namespace std;
 using namespace boost;
@@ -40,26 +39,27 @@ public:
    ~ReadConfigurationFile();
 
    /// \brief set and get for the configuration file name 
-   void SetConfigFilename(string fname) { configFilename_ = fname; }
-   string GetConfigFilename() { return configFilename_; }
+   void SetConfigFilename(string fname) { _configFilename = fname; }
+   string GetConfigFilename() { return _configFilename; }
 
-   /// \brief perform the jsone file read-in and convert element to 
-   /// HmmConfiguration members.
+   /// \brief perform the json file read-in and convert element to AppConfig members.
    /// \return 0 success
    /// \return -1 an error occured and the error string was set
    int ReadIn();
 
-   /// \brief get fuction for the config 
-   HmmConfiguration GetConfiguration(){ return hmmConfig_; }
+   /// \brief get function for the config 
+   AppConfig GetConfiguration() { return _appConfig; }
 
    /// \brief get build error string  
-   string GetError() { return error_; }
+   string GetErrorStr() { return _error; }
 
 private:
 
-   string configFilename_;      // a file name  
-   string error_;               // error string
-   HmmConfiguration hmmConfig_; // the configuration
+   string _configFilename;      // a file name  
+   string _error;               // error string
+
+   AppConfig _appConfig;        // the application data from the json file 
+
 
    /// \brief template function to read a 2d array from the property tree
    template<typename T>
@@ -73,9 +73,10 @@ private:
             for(pt::ptree::value_type &v2 : v.second) {
                try {
                   temp.push_back(lexical_cast<T>(v2.second.data()));
-               } catch(bad_lexical_cast &e) {
-                  error_ = "error on lexical_cast ";
-                  error_ += e.what();
+               }
+               catch(bad_lexical_cast &e) {
+                  _error = "error on lexical_cast ";
+                  _error += e.what();
                } // end try catch
 
                // if exception occured throw  
@@ -84,14 +85,14 @@ private:
             } // end for 
             ret.push_back(temp);
          } // end for 
-      } 
+      }
       catch(std::exception &e) {
-         error_ = "error on child read ";
-         error_ += e.what();
+         _error = "error on child read ";
+         _error += e.what();
       } // end try/catch
 
       // if exception occured throw  
-      if(error.length() > 0) throw error_.c_str();
+      if(error.length() > 0) throw _error.c_str();
 
       return ret;
    } // end Get2dData
@@ -106,23 +107,24 @@ private:
          for(pt::ptree::value_type &v : tree.get_child(child_label.c_str())) {
             try {
                ret.push_back(lexical_cast<T>(v.second.data()));
-            } catch(bad_lexical_cast &e) {
-               error_ = "error on lexical_cast ";
-               error_ += e.what();
+            }
+            catch(bad_lexical_cast &e) {
+               _error = "error on lexical_cast ";
+               _error += e.what();
             } // end try catch
 
             // if exception occured throw  
-            if(error_.length() > 0) throw error_.c_str();
+            if(_error.length() > 0) throw _error.c_str();
          } // end for 
 
-      } 
+      }
       catch(std::exception &e) {
-         error_ = "error on child read ";
-         error_ += e.what();
+         _error = "error on child read ";
+         _error += e.what();
       } // end try/catch
 
       // if exception occured throw  
-      if(error_.length() > 0) throw error_.c_str();
+      if(_error.length() > 0) throw _error.c_str();
 
       return ret;
    } // end Get1dData
@@ -135,13 +137,14 @@ private:
 
       try {
          ret = tree.get<T>(child_label);
-      } catch(std::exception &e) {
-         error_ = "error on child read ";
-         error_ += e.what();
+      }
+      catch(std::exception &e) {
+         _error = "error on child read ";
+         _error += e.what();
       } // end try/catch
 
       // if exception occured throw  
-      if(error_.length() > 0) throw error_.c_str();
+      if(_error.length() > 0) throw _error.c_str();
 
       return ret;
    } // end GetScalarData
