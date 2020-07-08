@@ -1,0 +1,10 @@
+{
+  "GarageDoorProject": {
+    "name": "garage door state",
+    "database_path": "/home/pi/projects/gdoor/garage.db",
+    "database_table": "door_state",
+    "digital_inputs": [ 0, 1 ],
+    "digital_input_labels": [ "up_position", "down_position" ],
+    "loop_time_ms": 2000
+  }
+}
