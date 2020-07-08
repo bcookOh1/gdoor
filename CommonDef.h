@@ -19,12 +19,12 @@ using namespace std;
 using ErrorRet = std::tuple<int, string>;
 
 // configuration file data names
-const string CONFIG_APP_NAME = "GarageDoorProject.name";
-const string CONFIG_DB_PATH = "GarageDoorProject.database_path";
-const string CONFIG_DB_TABLE = "GarageDoorProject.database_table";
-const string CONFIG_DIGITAL_INPUTS = "GarageDoorProject.digital_inputs";
-const string CONFIG_DIGITAL_INPUT_LABELS = "GarageDoorProject.digital_input_labels";
-const string CONFIG_LOOP_TIME_MS = "GarageDoorProject.loop_time_ms";
+const string CONFIG_APP_NAME = "GarageDoorPi.name";
+const string CONFIG_DB_PATH = "GarageDoorPi.database_path";
+const string CONFIG_DB_TABLE = "GarageDoorPi.database_table";
+const string CONFIG_DIGITAL_INPUTS = "GarageDoorPi.digital_inputs";
+const string CONFIG_DIGITAL_INPUT_LABELS = "GarageDoorPi.digital_input_labels";
+const string CONFIG_LOOP_TIME_MS = "GarageDoorPi.loop_time_ms";
 
 
 // simple struct with application configuration.

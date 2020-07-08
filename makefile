@@ -36,3 +36,4 @@ Util.o: Util.cpp Util.h
 clean:  
 	$(RM) $(TARGET) 
 	$(RM) *.o 
+	$(RM) *.gch 
