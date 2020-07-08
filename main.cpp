@@ -7,65 +7,52 @@
 #include <thread>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sqlite3.h> 
 
-// example from documentation
-static int callback(void *NotUsed, int argc, char **argv, char **azColName) {
-   int i;
-   for(i = 0; i<argc; i++) {
-      printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
-   }
-   printf("\n");
-   return 0;
-} // end error callback
+#include "CommonDef.h"
+#include "Util.h"
+#include "ReadConfigurationFile.h"
+#include "UpdateDatabase.h"
+
+using namespace std;
+
 
 int main(int argc, char* argv[]) {
-   sqlite3 *db;
-   char *zErrMsg = 0;
-   int rc;
-   std::string sql;
 
-   // open db use full path 
-   rc = sqlite3_open("/home/pi/projects/gdoor/garage.db", &db);  
-   if( rc ) {
-      fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
-      return(0);
-   } 
+   ReadConfigurationFile rcf;
+
+   // check and convert command line params    
+   if(argc == 2) {
+      rcf.SetConfigFilename(argv[1]);
+   }
    else {
-      fprintf(stderr, "Opened database successfully\n");
-   } // end if 
- 
-   // execute sql statement 
-   rc = sqlite3_exec(db, "begin", callback, 0, &zErrMsg);
-   if( rc != SQLITE_OK ){
-      fprintf(stderr, "SQL error: %s\n", zErrMsg);
-      sqlite3_free(zErrMsg);
-   } 
-   else {
-      fprintf(stdout, "begin transition\n");
+      cout << "expected a configuration file as a parameter\n";
+      return 0;
    } // end if 
 
-   // execute sql statement to insert a row
-   rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
-   if( rc != SQLITE_OK ){
-      fprintf(stderr, "SQL error: %s\n", zErrMsg);
-      sqlite3_free(zErrMsg);
-   } 
-   else {
-      fprintf(stdout, "success, row added\n");
+   int result = rcf.ReadIn();
+   if(result != 0) {
+      cout << "configuration file read in error: " + rcf.GetErrorStr() + "\n";
+      return 0;
    } // end if 
 
-   // execute end (commit) transition 
-   rc = sqlite3_exec(db, "end", callback, 0, &zErrMsg);
-   if( rc != SQLITE_OK ){
-      fprintf(stderr, "SQL error: %s\n", zErrMsg);
-      sqlite3_free(zErrMsg);
-   } 
-   else {
-      fprintf(stdout, "commit transition \n");
-   } // end if 
+   AppConfig ac = rcf.GetConfiguration();
+   UpdateDatabase udb;
+   udb.SetDbFullPath(ac.dbPath);
    
-   sqlite3_close(db);
-   
+   int done = 10;
+   while(done) {
+
+      string start = GetSqlite3DateTime();
+      this_thread::sleep_for(chrono::milliseconds(ac.loopTimeMS));
+      string end = GetSqlite3DateTime();
+      result = udb.AddRow(start, 1, end, 2);
+      if(result != 0){
+        cout << "database write error: " + udb.GetErrorStr() + "\n"; 
+        return 0;
+      } // end if 
+
+      done--;
+   } // end while 
+
    return 0;
 } // end main
