@@ -10,7 +10,7 @@ CFLAGS = -Wall -std=c++17
 LFLAGS = -lsqlite3
 
 # the executable to build
-TARGET = gdoor.out
+TARGET = gdoor
 
 all: $(TARGET)
 
