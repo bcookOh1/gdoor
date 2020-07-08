@@ -1,5 +1,5 @@
 {
-  "GarageDoorProject": {
+  "GarageDoorPie": {
     "name": "garage door state",
     "database_path": "/home/pi/projects/gdoor/garage.db",
     "database_table": "door_state",
