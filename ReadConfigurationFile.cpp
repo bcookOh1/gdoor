@@ -26,14 +26,18 @@ int ReadConfigurationFile::ReadIn() {
       _appConfig.appName = GetScalarData<string>(tree, CONFIG_APP_NAME);
       _appConfig.dbPath = GetScalarData<string>(tree, CONFIG_DB_PATH);
       _appConfig.dbTable = GetScalarData<string>(tree, CONFIG_DB_TABLE);
-      _appConfig.dInputs = Get1dData<unsigned>(tree, CONFIG_DIGITAL_INPUTS);
-      _appConfig.dInputLabels = Get1dData<string>(tree, CONFIG_DIGITAL_INPUT_LABELS);
+
+     //  _appConfig.dInputs = Get1dData<unsigned>(tree, CONFIG_DIGITAL_INPUTS);
+     pt::ptree inputsTree = tree.get_child(CONFIG_DIGITAL_INPUTS);
+
+
+     //  _appConfig.dInputLabels = Get1dData<string>(tree, CONFIG_DIGITAL_INPUT_LABELS);
       _appConfig.loopTimeMS = GetScalarData<int>(tree, CONFIG_LOOP_TIME_MS);
 
    }
    catch(std::exception &e) {
-      _error = "error on read ";
-      _error += e.what();
+      _statusStr = "error on read ";
+      _statusStr += e.what();
       ret = -1;
    } // end try/catch
 

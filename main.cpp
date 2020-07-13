@@ -13,7 +13,7 @@
 #include "ReadConfigurationFile.h"
 #include "UpdateDatabase.h"
 
-using namespace std;
+using namespace std; 
 
 
 int main(int argc, char* argv[]) {
@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
 
    int result = rcf.ReadIn();
    if(result != 0) {
-      cout << "configuration file read in error: " + rcf.GetErrorStr() + "\n";
+      cout << "configuration file read in error: " <<  rcf.GetStatusStr() << "\n";
       return 0;
    } // end if 
 
@@ -47,7 +47,7 @@ int main(int argc, char* argv[]) {
       string end = GetSqlite3DateTime();
       result = udb.AddRow(start, 1, end, 2);
       if(result != 0){
-        cout << "database write error: " + udb.GetErrorStr() + "\n"; 
+        cout << "database write error: " << udb.GetStatusStr() << "\n"; 
         return 0;
       } // end if 
 

@@ -50,13 +50,13 @@ public:
    /// \brief get function for the config 
    AppConfig GetConfiguration() { return _appConfig; }
 
-   /// \brief get build error string  
-   string GetErrorStr() { return _error; }
+   /// \brief get status string  
+   string GetStatusStr() { return _statusStr; }
 
 private:
 
    string _configFilename;      // a file name  
-   string _error;               // error string
+   string _statusStr;               // error string
 
    AppConfig _appConfig;        // the application data from the json file 
 
@@ -75,8 +75,8 @@ private:
                   temp.push_back(lexical_cast<T>(v2.second.data()));
                }
                catch(bad_lexical_cast &e) {
-                  _error = "error on lexical_cast ";
-                  _error += e.what();
+                  _statusStr = "error on lexical_cast ";
+                  _statusStr += e.what();
                } // end try catch
 
                // if exception occured throw  
@@ -87,12 +87,12 @@ private:
          } // end for 
       }
       catch(std::exception &e) {
-         _error = "error on child read ";
-         _error += e.what();
+         _statusStr = "error on child read ";
+         _statusStr += e.what();
       } // end try/catch
 
       // if exception occured throw  
-      if(error.length() > 0) throw _error.c_str();
+      if(error.length() > 0) throw _statusStr.c_str();
 
       return ret;
    } // end Get2dData
@@ -109,22 +109,22 @@ private:
                ret.push_back(lexical_cast<T>(v.second.data()));
             }
             catch(bad_lexical_cast &e) {
-               _error = "error on lexical_cast ";
-               _error += e.what();
+               _statusStr = "error on lexical_cast ";
+               _statusStr += e.what();
             } // end try catch
 
             // if exception occured throw  
-            if(_error.length() > 0) throw _error.c_str();
+            if(_statusStr.length() > 0) throw _statusStr.c_str();
          } // end for 
 
       }
       catch(std::exception &e) {
-         _error = "error on child read ";
-         _error += e.what();
+         _statusStr = "error on child read ";
+         _statusStr += e.what();
       } // end try/catch
 
       // if exception occured throw  
-      if(_error.length() > 0) throw _error.c_str();
+      if(_statusStr.length() > 0) throw _statusStr.c_str();
 
       return ret;
    } // end Get1dData
@@ -139,12 +139,12 @@ private:
          ret = tree.get<T>(child_label);
       }
       catch(std::exception &e) {
-         _error = "error on child read ";
-         _error += e.what();
+         _statusStr = "error on child read ";
+         _statusStr += e.what();
       } // end try/catch
 
       // if exception occured throw  
-      if(_error.length() > 0) throw _error.c_str();
+      if(_statusStr.length() > 0) throw _statusStr.c_str();
 
       return ret;
    } // end GetScalarData

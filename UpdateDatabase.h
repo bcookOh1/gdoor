@@ -30,15 +30,15 @@ public:
   int SetDbFullPath(const string &fullPath);
   int SetDbTableName(const string &dbTable);
   int AddRow(string start, int start_state, string end, int end_state);
-  string GetErrorStr() { return _statusStr; }
+  string GetStatusStr() { return _statusStr; }
 
 private: 
 
   string _dbFullPath;
   string _dbTable;
   string _statusStr;
-  
-   
+
+
    // example from documentation
    static int callback(void *NotUsed, int argc, char **argv, char **azColName) {
       int i;

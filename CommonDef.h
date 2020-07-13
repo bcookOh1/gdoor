@@ -15,15 +15,20 @@
 
 using namespace std;
 
-// alias for error return values 
-using ErrorRet = std::tuple<int, string>;
+// alias for gpio pin configuration
+//                          name,   pin,      logicLevel                       
+using IoConfig = std::tuple<string, unsigned, unsigned>;
+
 
 // configuration file data names
 const string CONFIG_APP_NAME = "GarageDoorPi.name";
 const string CONFIG_DB_PATH = "GarageDoorPi.database_path";
 const string CONFIG_DB_TABLE = "GarageDoorPi.database_table";
 const string CONFIG_DIGITAL_INPUTS = "GarageDoorPi.digital_inputs";
-const string CONFIG_DIGITAL_INPUT_LABELS = "GarageDoorPi.digital_input_labels";
+const string CONFIG_DIGITAL_OUTPUTS = "GarageDoorPi.digital_outputs";
+const string CONFIG_DIGITAL_IO_LABEL = "label";
+const string CONFIG_DIGITAL_IO_PIN = "pin";
+const string CONFIG_DIGITAL_IO_LOGIC_LEVEL = "logic_level";
 const string CONFIG_LOOP_TIME_MS = "GarageDoorPi.loop_time_ms";
 
 
@@ -41,7 +46,7 @@ struct AppConfig  {
       dbPath = rhs.dbPath;
       dbTable = rhs.dbTable;
       dInputs = rhs.dInputs;
-      dInputLabels = rhs.dInputLabels;
+      dOutputs = rhs.dOutputs;
       loopTimeMS = rhs.loopTimeMS;
    } // end ctor
 
@@ -50,7 +55,8 @@ struct AppConfig  {
       appName = rhs.appName;
       dbPath = rhs.dbPath;
       dbTable = rhs.dbTable;
-      dInputLabels = rhs.dInputLabels;
+      dInputs = rhs.dInputs;
+      dOutputs = rhs.dOutputs;
       loopTimeMS = rhs.loopTimeMS;
       return *this;
    } // assignment operator
@@ -61,15 +67,15 @@ struct AppConfig  {
       dbPath = "";
       dbTable = "";
       dInputs.clear();
-      dInputLabels.clear();
+      dOutputs.clear();
       loopTimeMS = 0;
    } // end Initialize
 
    string appName;               /// application name 
    string dbPath;                /// the full path to the shared databased 
    string dbTable;               /// name of the status table 
-   vector<unsigned> dInputs;     /// a list of the digital inputs 
-   vector<string> dInputLabels;  /// a list of the digital input labels 
+   vector<IoConfig> dInputs;     /// a list of the digital inputs 
+   vector<IoConfig> dOutputs;    /// a list of the digital outputs 
    int loopTimeMS;               /// the programs read input loop time
 
 }; // end struct 
