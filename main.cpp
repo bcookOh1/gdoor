@@ -38,7 +38,11 @@ int main(int argc, char* argv[]) {
    AppConfig ac = rcf.GetConfiguration();
    UpdateDatabase udb;
    udb.SetDbFullPath(ac.dbPath);
-   
+
+   IoValues dInputValues = MakeIoValuesMap(ac.dInputs);
+   IoValues dOutputValues = MakeIoValuesMap(ac.dOutputs);
+
+
    int done = 10;
    while(done) {
 
@@ -47,7 +51,7 @@ int main(int argc, char* argv[]) {
       string end = GetSqlite3DateTime();
       result = udb.AddRow(start, 1, end, 2);
       if(result != 0){
-        cout << "database write error: " << udb.GetStatusStr() << "\n"; 
+        cout << "database write error: " << udb.GetErrorStr() << "\n"; 
         return 0;
       } // end if 
 

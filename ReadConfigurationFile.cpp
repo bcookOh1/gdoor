@@ -36,8 +36,8 @@ int ReadConfigurationFile::ReadIn() {
 
    }
    catch(std::exception &e) {
-      _statusStr = "error on read ";
-      _statusStr += e.what();
+      _errorStr = "error on read ";
+      _errorStr += e.what();
       ret = -1;
    } // end try/catch
 

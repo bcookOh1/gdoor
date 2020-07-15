@@ -21,7 +21,9 @@
 #include <iomanip>
 
 #include "CommonDef.h"
-  
+#include "Util.h"
+
+
 using namespace std;
 using namespace boost;
 namespace pt = boost::property_tree;
@@ -51,12 +53,12 @@ public:
    AppConfig GetConfiguration() { return _appConfig; }
 
    /// \brief get status string  
-   string GetStatusStr() { return _statusStr; }
+   string GetErrorStr() { return _errorStr; }
 
 private:
 
    string _configFilename;      // a file name  
-   string _statusStr;               // error string
+   string _errorStr;            // error string
 
    AppConfig _appConfig;        // the application data from the json file 
 
@@ -65,7 +67,7 @@ private:
    template<typename T>
    vector<vector<T>> Get2dData(pt::ptree tree, const string &child_label) {
       vector<vector<T>> ret;
-      string error;
+      _errorStr = "";
 
       try {
          for(pt::ptree::value_type &v : tree.get_child(child_label.c_str())) {
@@ -75,24 +77,24 @@ private:
                   temp.push_back(lexical_cast<T>(v2.second.data()));
                }
                catch(bad_lexical_cast &e) {
-                  _statusStr = "error on lexical_cast ";
-                  _statusStr += e.what();
+                  _errorStr = "error on lexical_cast ";
+                  _errorStr += e.what();
                } // end try catch
 
                // if exception occured throw  
-               if(error.length() > 0) throw error.c_str();
+               if(_error.length() > 0) throw _error.c_str();
 
             } // end for 
             ret.push_back(temp);
          } // end for 
       }
       catch(std::exception &e) {
-         _statusStr = "error on child read ";
-         _statusStr += e.what();
+         _errorStr = "error on child read ";
+         _errorStr += e.what();
       } // end try/catch
 
       // if exception occured throw  
-      if(error.length() > 0) throw _statusStr.c_str();
+      if(_errorStr.length() > 0) throw _errorStr.c_str();
 
       return ret;
    } // end Get2dData
@@ -101,7 +103,7 @@ private:
    template<typename T>
    vector<T> Get1dData(pt::ptree tree, const string &child_label) {
       vector<T> ret;
-      string error;
+      _errorStr = "";
 
       try {
          for(pt::ptree::value_type &v : tree.get_child(child_label.c_str())) {
@@ -109,22 +111,22 @@ private:
                ret.push_back(lexical_cast<T>(v.second.data()));
             }
             catch(bad_lexical_cast &e) {
-               _statusStr = "error on lexical_cast ";
-               _statusStr += e.what();
+               _errorStr = "error on lexical_cast ";
+               _errorStr += e.what();
             } // end try catch
 
             // if exception occured throw  
-            if(_statusStr.length() > 0) throw _statusStr.c_str();
+            if(_errorStr.length() > 0) throw _errorStr.c_str();
          } // end for 
 
       }
       catch(std::exception &e) {
-         _statusStr = "error on child read ";
-         _statusStr += e.what();
+         _errorStr = "error on child read ";
+         _errorStr += e.what();
       } // end try/catch
 
       // if exception occured throw  
-      if(_statusStr.length() > 0) throw _statusStr.c_str();
+      if(_errorStr.length() > 0) throw _errorStr.c_str();
 
       return ret;
    } // end Get1dData
@@ -133,18 +135,18 @@ private:
    template<typename T>
    T GetScalarData(pt::ptree tree, const string &child_label) {
       T ret;
-      string error;
+      _errorStr = "";
 
       try {
          ret = tree.get<T>(child_label);
       }
       catch(std::exception &e) {
-         _statusStr = "error on child read ";
-         _statusStr += e.what();
+         _errorStr = "error on child read ";
+         _errorStr += e.what();
       } // end try/catch
 
       // if exception occured throw  
-      if(_statusStr.length() > 0) throw _statusStr.c_str();
+      if(_errorStr.length() > 0) throw _errorStr.c_str();
 
       return ret;
    } // end GetScalarData

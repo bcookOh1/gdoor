@@ -12,6 +12,9 @@
 #include <map>
 #include <vector>
 
+#include "CommonDef.h"
+#include "Util.h"
+
 #include <wiringPi.h>
 
 using namespace std;
@@ -26,8 +29,8 @@ public:
   int SetOutputNameAndPin(string name, unsigned pin);
   int ConfigureHardware();
 
-  int ReadInputs(const vector<string> &inputNames, vector<unsigned> &values);
-  int SetOutputs(const vector<string> &outputNames, const vector<unsigned> &values);
+  int ReadInputs(IoValues &values);
+  int SetOutputs(const IoValues &values);
 
   string GetStatusStr(){ return _statusStr; }
 

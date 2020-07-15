@@ -27,14 +27,11 @@ int DigitalIO::ConfigureHardware(){
 } // end ConfigureHardware
 
 
-int DigitalIO::ReadInput(const vector<string> &inputNames, 
-                          vector<unsigned> &values){
+int DigitalIO::ReadInput(IoValues &values){
   int ret = 0;
   
-  values.clear();
-
   // read the requested inputs and return in value vect
-  for(auto iter = inputNames.begin();  iter != _inputNames.end(); ++iter){
+  for(auto iter = values.begin();  iter != _inputNames.end(); ++iter){
     values.push_back(digitalRead(*iter));
   } // end for 
 

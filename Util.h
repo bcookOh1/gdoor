@@ -9,18 +9,23 @@
 #ifndef UTIL_H
 #define UTIL_H
 
-
 #include <string>
+#include <vector>
+#include <map>
+#include <tuple>
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <ctime>
 
 
+#include "CommonDef.h"
+
 using namespace std;
 
 
 string GetSqlite3DateTime();
+IoValues MakeIoValuesMap(const vector<IoConfig> &io);
 
 
 #endif // end header guard

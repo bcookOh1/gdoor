@@ -11,6 +11,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 #include <tuple>
 
 using namespace std;
@@ -18,6 +19,10 @@ using namespace std;
 // alias for gpio pin configuration
 //                          name,   pin,      logicLevel                       
 using IoConfig = std::tuple<string, unsigned, unsigned>;
+
+// alias for setting or reading io values 
+//                  name,    value  
+using IoValues = map<string, unsigned>;
 
 
 // configuration file data names

@@ -23,4 +23,16 @@ string GetSqlite3DateTime() {
 
     return ret;
 } // end GetSqlite3DateTime
+
+
+IoValues MakeIoValuesMap(const vector<IoConfig> &io) {
+   IoValues ret;
+
+   for(auto iter = io.begin(); iter != io.end(); ++iter) {
+      ret.insert(make_pair(get<0>(*iter), 0));
+   } // end for 
+
+   return ret;  
+} // end MakeIoValuesMap
+
  
