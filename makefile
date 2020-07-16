@@ -31,7 +31,7 @@ ReadConfigurationFile.o: ReadConfigurationFile.cpp ReadConfigurationFile.h
 	$(CC) $(CFLAGS) -c ReadConfigurationFile.cpp
 
 Util.o: Util.cpp Util.h  
-	$(CC) $(CFLAGS) -c Util.cpp Util.h
+	$(CC) $(CFLAGS) -c Util.cpp
 
 clean:  
 	$(RM) $(TARGET) 

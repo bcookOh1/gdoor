@@ -3,7 +3,7 @@
 
 
 UpdateDatabase::UpdateDatabase(){
-   _statusStr = "success";
+   _errorStr = "success";
 } // end ctor 
 
 
@@ -37,8 +37,8 @@ int UpdateDatabase::AddRow(string start, int start_state, string end, int end_st
    // open db use full path 
    rc = sqlite3_open(_dbFullPath.c_str(), &db);
    if(rc) {
-      _statusStr = "can't open database: ";
-      _statusStr += sqlite3_errmsg(db);
+      _errorStr = "can't open database: ";
+      _errorStr += sqlite3_errmsg(db);
       sqlite3_free(zErrMsg);
       return -1;
    } // end if 
@@ -47,8 +47,8 @@ int UpdateDatabase::AddRow(string start, int start_state, string end, int end_st
    // execute sql statement 
    rc = sqlite3_exec(db, "begin", callback, 0, &zErrMsg);
    if( rc != SQLITE_OK ){
-      _statusStr = "begin command error: ";
-      _statusStr += sqlite3_errmsg(db);
+      _errorStr = "begin command error: ";
+      _errorStr += sqlite3_errmsg(db);
       sqlite3_free(zErrMsg);
       sqlite3_close(db);
       return -1;
@@ -63,8 +63,8 @@ int UpdateDatabase::AddRow(string start, int start_state, string end, int end_st
    // execute sql statement to insert a row
    rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
    if( rc != SQLITE_OK ){
-      _statusStr = "insert row: ";
-      _statusStr += sqlite3_errmsg(db);
+      _errorStr = "insert row: ";
+      _errorStr += sqlite3_errmsg(db);
       sqlite3_free(zErrMsg);
       sqlite3_close(db);
       return -1;
@@ -74,8 +74,8 @@ int UpdateDatabase::AddRow(string start, int start_state, string end, int end_st
    // execute end (commit) transition 
    rc = sqlite3_exec(db, "end", callback, 0, &zErrMsg);
    if( rc != SQLITE_OK ){
-      _statusStr = "begin command error: ";
-      _statusStr += sqlite3_errmsg(db);
+      _errorStr = "begin command error: ";
+      _errorStr += sqlite3_errmsg(db);
       sqlite3_free(zErrMsg);
       sqlite3_close(db);
       return -1;

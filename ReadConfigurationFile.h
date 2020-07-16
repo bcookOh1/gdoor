@@ -82,7 +82,7 @@ private:
                } // end try catch
 
                // if exception occured throw  
-               if(_error.length() > 0) throw _error.c_str();
+               if(_errorStr.length() > 0) throw _errorStr.c_str();
 
             } // end for 
             ret.push_back(temp);

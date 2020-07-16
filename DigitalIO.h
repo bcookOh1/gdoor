@@ -10,7 +10,9 @@
 
 #include <string>
 #include <map>
+#include <set>
 #include <vector>
+#include <boost/assert.hpp>
 
 #include "CommonDef.h"
 #include "Util.h"
@@ -18,28 +20,30 @@
 #include <wiringPi.h>
 
 using namespace std;
+using namespace boost;
 
 class DigitalIO {
 
 public: 
-  DigitalIO();
-  ~DigitalIO();
+   DigitalIO();
+   ~DigitalIO();
 
-  int SetInputNameAndPin(string name, unsigned pin, unsigned logicLevel);
-  int SetOutputNameAndPin(string name, unsigned pin);
-  int ConfigureHardware();
+   int SetupIoPoints(const vector<IoConfig> &dioVect);
+   int ConfigureHardware();
 
-  int ReadInputs(IoValues &values);
-  int SetOutputs(const IoValues &values);
+   int ReadAll(IoValues &values);
+   int SetOutputs(const IoValues &values);
 
-  string GetStatusStr(){ return _statusStr; }
+   string GetErrorStr(){ return _errorStr; }
 
 private:
 
-  map<string, tuple<unsigned, unsigned>> _inputs; 
-  map<string, unsigned> _outputs;
+   map<string, IoConfig> _dios; 
+   set<unsigned> _pinList;
 
-  string _statusStr; 
+   string _errorStr; 
+
+   int GetPinForName(const string &name, unsigned &pin);
 
 }; // end class
 

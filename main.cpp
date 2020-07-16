@@ -12,6 +12,7 @@
 #include "Util.h"
 #include "ReadConfigurationFile.h"
 #include "UpdateDatabase.h"
+#include "DigitalIO.h"
 
 using namespace std; 
 
@@ -31,7 +32,7 @@ int main(int argc, char* argv[]) {
 
    int result = rcf.ReadIn();
    if(result != 0) {
-      cout << "configuration file read in error: " <<  rcf.GetStatusStr() << "\n";
+      cout << "configuration file read in error: " <<  rcf.GetErrorStr() << "\n";
       return 0;
    } // end if 
 
@@ -39,15 +40,27 @@ int main(int argc, char* argv[]) {
    UpdateDatabase udb;
    udb.SetDbFullPath(ac.dbPath);
 
-   IoValues dInputValues = MakeIoValuesMap(ac.dInputs);
-   IoValues dOutputValues = MakeIoValuesMap(ac.dOutputs);
+   // make a digial io class and configure digial io points
+   DigitalIO digitalIo;
+   digitalIo.SetupIoPoints(ac.dIos);
+   digitalIo.ConfigureHardware();
 
+   // setup empty IoValue map 
+   IoValues ioValues = MakeIoValuesMap(ac.dIos);
 
    int done = 10;
    while(done) {
 
+      // read the all io points 
+      result = digitalIo.ReadInputs(ioValues);
+      if(result != 0){
+        cout << "read gpio error: " << digitalIo.GetErrorStr() << "\n"; 
+        return 0;
+      } // end if 
+
       string start = GetSqlite3DateTime();
       this_thread::sleep_for(chrono::milliseconds(ac.loopTimeMS));
+
       string end = GetSqlite3DateTime();
       result = udb.AddRow(start, 1, end, 2);
       if(result != 0){

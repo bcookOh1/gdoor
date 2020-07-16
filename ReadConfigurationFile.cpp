@@ -27,11 +27,29 @@ int ReadConfigurationFile::ReadIn() {
       _appConfig.dbPath = GetScalarData<string>(tree, CONFIG_DB_PATH);
       _appConfig.dbTable = GetScalarData<string>(tree, CONFIG_DB_TABLE);
 
-     //  _appConfig.dInputs = Get1dData<unsigned>(tree, CONFIG_DIGITAL_INPUTS);
-     pt::ptree inputsTree = tree.get_child(CONFIG_DIGITAL_INPUTS);
+      // get the IO configuration
+      for(pt::ptree::value_type &v : tree.get_child(CONFIG_DIGITAL_IO)) {
 
+         // get the individual elements of the IO, use try/catch to insure  
+         // sure the types are correct
+         try {
 
-     //  _appConfig.dInputLabels = Get1dData<string>(tree, CONFIG_DIGITAL_INPUT_LABELS);
+            IoConfig ioconfig;
+            ioconfig.SetTypeFromString(v.second.get<string>(CONFIG_DIGITAL_IO_TYPE));
+            ioconfig.name = v.second.get<string>(CONFIG_DIGITAL_IO_NAME);
+            ioconfig.pin = v.second.get<unsigned>(CONFIG_DIGITAL_IO_PIN);
+
+            // add to app config struct 
+            _appConfig.dIos.push_back(ioconfig);
+         }
+         catch(std::exception &e) {
+            _errorStr = "digital IO error on lexical_cast, ";
+            _errorStr += e.what();
+            return -1;
+         } // end try catch
+
+      } // end for 
+
       _appConfig.loopTimeMS = GetScalarData<int>(tree, CONFIG_LOOP_TIME_MS);
 
    }

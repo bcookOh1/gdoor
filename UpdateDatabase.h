@@ -30,13 +30,13 @@ public:
   int SetDbFullPath(const string &fullPath);
   int SetDbTableName(const string &dbTable);
   int AddRow(string start, int start_state, string end, int end_state);
-  string GetStatusStr() { return _statusStr; }
+  string GetErrorStr() { return _errorStr; }
 
 private: 
 
   string _dbFullPath;
   string _dbTable;
-  string _statusStr;
+  string _errorStr;
 
 
    // example from documentation

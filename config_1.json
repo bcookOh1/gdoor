@@ -3,18 +3,23 @@
     "name": "garage door monitor",
     "database_path": "/home/pi/projects/gdoor/garage.db",
     "database_table": "door_state",
-    "digital_inputs": [
+    "digital_io": [
        { 
-         "label": "up_position", 
-         "pin": 0,
-         "logic_level": "active_high"
+         "type": "input",
+         "name": "up_position", 
+         "pin": 0
        },
        { 
-         "label": "down_position", 
-         "pin": 1,
-         "logic_level": "active_high"
+         "type": "input",
+         "name": "down_position", 
+         "pin": 1
+       },
+       { 
+         "type": "output",
+         "name": "door_cycling", 
+         "pin": 3
        }
     ],
-    "loop_time_ms": 100
+    "loop_time_ms": 2000
   }
 }
