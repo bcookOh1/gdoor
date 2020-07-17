@@ -19,10 +19,20 @@ using namespace std;
 
 
 // define an enum for the gpio type
+// values match macros in wiringPi.h
 enum class PinType {
-   DInput,
+   DInput = 0,
    DOutput
 }; 
+
+// define an enum for the digital input resistor
+// values match macros in wiringPi.h
+enum class InputResistorMode {
+   None = 0,
+   PullDown,
+   PullUp
+}; 
+
 
 // alias for setting or reading io values 
 //                  name,    value  
@@ -36,15 +46,25 @@ const string CONFIG_DIGITAL_IO = "GarageDoorPi.digital_io";
 const string CONFIG_DIGITAL_IO_TYPE = "type";
 const string CONFIG_DIGITAL_IO_NAME = "name";
 const string CONFIG_DIGITAL_IO_PIN = "pin";
-const string CONFIG_OUTPUT_TEXT = "output";
+const string CONFIG_DIGITAL_INPUT_RESISTOR_MODE = "resistor_mode";
 const string CONFIG_LOOP_TIME_MS = "GarageDoorPi.loop_time_ms";
+
+// string values for digital io type 
+const string DIGITAL_INPUT_STR = "input";
+const string DIGITAL_OUTPUT_STR = "output";
+
+// string values for digital input resistor mode 
+const string INPUT_RESISTOR_PULLDOWN_STR = "pulldown";
+const string INPUT_RESISTOR_PULLUP_STR = "pullup";
+
 
 // define a copyable struct for gpio configurations 
 struct IoConfig {
 
    IoConfig() {
+      type = PinType::DInput,
       pin = 0;
-      resistor_mode = 0;
+      resistor_mode = InputResistorMode::None;
    } // end ctor
 
    // copy constructor
@@ -52,7 +72,7 @@ struct IoConfig {
       type = rhs.type;
       name = rhs.name;
       pin = rhs.pin;
-      resistor_mode = rhs.resistor_mode; start here 
+      resistor_mode = rhs.resistor_mode; 
    } // end ctor
 
    // assignment operator
@@ -66,18 +86,31 @@ struct IoConfig {
 
    // set type from string 
    void SetTypeFromString(const string &str) {
-      if(str == CONFIG_OUTPUT_TEXT){
+      if(str == DIGITAL_OUTPUT_STR){
          type = PinType::DOutput;
       }
       else {
          type = PinType::DInput;
       } // end if 
    } // end SetTypeFromString 
-  
+
+   // set mode from string 
+   void SetInputResistorModeFromString(const string &str) {
+      if(str == INPUT_RESISTOR_PULLDOWN_STR){
+         resistor_mode = InputResistorMode::PullDown;
+      }
+      else if(str == INPUT_RESISTOR_PULLUP_STR){
+         resistor_mode = InputResistorMode::PullDown;
+      }
+      else {
+         resistor_mode = InputResistorMode::None;
+      } // end if 
+   } // end SetTypeFromString 
+
    PinType type;
    string name; 
    unsigned pin;
-   unsigned resistor_mode;
+   InputResistorMode resistor_mode;
 }; // end struct
 
 // simple struct with application configuration.
