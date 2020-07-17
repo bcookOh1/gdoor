@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
 
    // make a digial io class and configure digial io points
    DigitalIO digitalIo;
-   digitalIo.SetupIoPoints(ac.dIos);
+   digitalIo.SetIoPoints(ac.dIos);
    digitalIo.ConfigureHardware();
 
    // setup empty IoValue map used for algo data 
@@ -54,7 +54,7 @@ int main(int argc, char* argv[]) {
    while(done) {
 
       // read the all io points 
-      result = digitalIo.ReadInputs(ioValues);
+      result = digitalIo.ReadAll(ioValues);
       if(result != 0){
         cout << "read gpio error: " << digitalIo.GetErrorStr() << "\n"; 
         return 0;
@@ -71,14 +71,20 @@ int main(int argc, char* argv[]) {
          case DoorState::Closed:     
          case DoorState::MovingToOpen: 
          case DoorState::MovingToClose: 
+         {
 
             string rec_time = GetSqlite3DateTime();
-            result = udb.AddRow(rec_time, static_cast<int>(DoorState state));
+            result = udb.AddRow(rec_time, static_cast<int>(state));
             if(result != 0){
             cout << "database write error: " << udb.GetErrorStr() << "\n"; 
             return 0;
             } // end if 
 
+         }
+             break;
+         case DoorState::NoChange: 
+         case DoorState::None: 
+            // do nothing 
             break;
          } // end switch
       }

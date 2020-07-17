@@ -43,6 +43,6 @@ private:
 
    string _errorStr; 
 
-} // end class
+}; // end class
 
 #endif // end header guard

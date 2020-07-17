@@ -17,10 +17,8 @@
 #include "CommonDef.h"
 #include "Util.h"
 
-#include <wiringPi.h>
 
 using namespace std;
-using namespace boost;
 
 class DigitalIO {
 

@@ -1,5 +1,6 @@
 
 #include "DigitalIO.h"
+#include <wiringPi.h>
 
 DigitalIO::DigitalIO(){
    wiringPiSetup();	// Initialize wiringPi
@@ -18,14 +19,14 @@ int DigitalIO::SetIoPoints(const vector<IoConfig> &dioVect){
    for(auto iter = dioVect.begin(); iter != dioVect.end(); ++iter){
       IoConfig ioconfig = (*iter);
 
-      auto result = _dios.insert(make_pair(ioconfig.name, ioconfig));
-      if(result.second == false){
+      auto result1 = _dios.insert(make_pair(ioconfig.name, ioconfig));
+      if(result1.second == false){
          _errorStr = "duplicate IO name: " + ioconfig.name;
          return -1;
       } // end if 
 
-      auto result = pinList.insert(ioconfig.pin);
-      if(result.second == false){
+      auto result2 = pinList.insert(ioconfig.pin);
+      if(result2.second == false){
          _errorStr = "duplicate pin number: " + ioconfig.pin;
          return -1;
       } // end if 
@@ -95,20 +96,14 @@ int DigitalIO::SetOutputs(const IoValues &douts){
 int DigitalIO::GetPinForName(const string &name, unsigned &pin){
    int ret = 0;
 
-    auto inputsIter = _dios.find(name);
-    if(inputsIter != _inputs.end()){
-       pin = get<0>(inputsIter->second);
-    }
-    else {
-      auto outputsIter = _outputs.find(name);
-      if(outputsIter != _outputs.end()){
-         pin = outputIter->second;
-      }
-      else {
-         BOOST_ASSERT_MSG(false, "pin number from name not found");
-         ret = -1;
-      } // end if 
-    } // end if 
+   auto inputsIter = _dios.find(name);
+   if(inputsIter != _dios.end()){
+      pin = inputsIter->second.pin;
+   }
+   else {
+     BOOST_ASSERT_MSG(false, "pin number from name not found");
+     ret = -1;
+   } // end if 
 
     return ret;
 } // end GetPinFromName
