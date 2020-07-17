@@ -25,7 +25,7 @@ int UpdateDatabase::SetDbTableName(const string &dbTable) {
 } // end SetDbTableName
 
 
-int UpdateDatabase::AddRow(string start, int start_state, string end, int end_state)  {
+int UpdateDatabase::AddRow(string rec_time, int state)  {
    int ret = 0;
    
    sqlite3 *db;
@@ -57,8 +57,7 @@ int UpdateDatabase::AddRow(string start, int start_state, string end, int end_st
 
    // build a insert sql command 
    sql = "insert into door_state values ";
-   sql += "('" + start + "'," + lexical_cast<string>(start_state) + ",'";
-   sql +=  end + "'," + lexical_cast<string>(end_state) + ")";
+   sql += "(rec_time = '" + rec_time  + "', state = " + lexical_cast<string>(state) + " )";
 
    // execute sql statement to insert a row
    rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);

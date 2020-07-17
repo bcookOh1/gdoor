@@ -29,7 +29,7 @@ public:
 
   int SetDbFullPath(const string &fullPath);
   int SetDbTableName(const string &dbTable);
-  int AddRow(string start, int start_state, string end, int end_state);
+  int AddRow(string rec_time, int state);
   string GetErrorStr() { return _errorStr; }
 
 private: 
