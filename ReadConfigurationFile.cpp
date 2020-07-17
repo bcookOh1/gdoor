@@ -39,6 +39,16 @@ int ReadConfigurationFile::ReadIn() {
             ioconfig.name = v.second.get<string>(CONFIG_DIGITAL_IO_NAME);
             ioconfig.pin = v.second.get<unsigned>(CONFIG_DIGITAL_IO_PIN);
 
+            // test if CONFIG_DIGITAL_INPUT_RESISTOR_MODE is in the tree
+            // if found set ioconfig.resistor_mode else use None (default) 
+            boost::optional<string> tmp = v.get_optional<string>(CONFIG_DIGITAL_INPUT_RESISTOR_MODE);
+            if(tmp.is_initialized()) {
+               ioconfig.SetInputResistorModeFromString(v.second.get<string>(CONFIG_DIGITAL_INPUT_RESISTOR_MODE));
+            }
+            else {
+               ioconfig.resistor_mode =InputResistorMode::None;
+            } // end if 
+
             // add to app config struct 
             _appConfig.dIos.push_back(ioconfig);
          }

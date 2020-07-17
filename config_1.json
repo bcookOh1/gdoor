@@ -7,7 +7,8 @@
        { 
          "type": "input",
          "name": "up_position", 
-         "pin": 0
+         "pin": 0,
+         "resistor_mode": "pullup"
        },
        { 
          "type": "input",
