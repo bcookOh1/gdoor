@@ -28,7 +28,7 @@ public:
    DigitalIO();
    ~DigitalIO();
 
-   int SetupIoPoints(const vector<IoConfig> &dioVect);
+   int SetIoPoints(const vector<IoConfig> &dioVect);
    int ConfigureHardware();
 
    int ReadAll(IoValues &values);
@@ -39,8 +39,6 @@ public:
 private:
 
    map<string, IoConfig> _dios; 
-   set<unsigned> _pinList;
-
    string _errorStr; 
 
    int GetPinForName(const string &name, unsigned &pin);

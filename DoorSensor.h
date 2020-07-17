@@ -15,6 +15,15 @@
 #include "CommonDef.h"
 #include "Util.h"
 
+enum class DoorState {
+   None = 0,
+   Open,
+   Closed,
+   MovingToOpen,
+   MovingToClose,
+   NoChange
+}; // end enum 
+
 
 class DoorSensor {
 
@@ -22,9 +31,17 @@ public:
    DoorSensor();
    ~DoorSensor();
 
+   int Process(IoValues &values);
+   DoorState GetState() { return _currentState; }
+
+   string GetErrorStr(){ return _errorStr; }
+
 private:
 
+   DoorState _lastState;
+   DoorState _currentState;
 
+   string _errorStr; 
 
 } // end class
 

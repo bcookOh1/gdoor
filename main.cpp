@@ -13,6 +13,7 @@
 #include "ReadConfigurationFile.h"
 #include "UpdateDatabase.h"
 #include "DigitalIO.h"
+#include "DoorSensor.h"
 
 using namespace std; 
 
@@ -45,8 +46,9 @@ int main(int argc, char* argv[]) {
    digitalIo.SetupIoPoints(ac.dIos);
    digitalIo.ConfigureHardware();
 
-   // setup empty IoValue map 
+   // setup empty IoValue map used for algo data 
    IoValues ioValues = MakeIoValuesMap(ac.dIos);
+   DoorSensor ds;
 
    int done = 10;
    while(done) {
@@ -58,14 +60,31 @@ int main(int argc, char* argv[]) {
         return 0;
       } // end if 
 
-      string start = GetSqlite3DateTime();
-      this_thread::sleep_for(chrono::milliseconds(ac.loopTimeMS));
+      // solve the logic 
+      result = ds.Process(ioValues);
+      if(result == 0) {
 
-      string end = GetSqlite3DateTime();
-      result = udb.AddRow(start, 1, end, 2);
-      if(result != 0){
-        cout << "database write error: " << udb.GetErrorStr() << "\n"; 
-        return 0;
+         // set the result 
+         DoorState state = ds.GetState();
+         switch(state){
+         case DoorState::Open: 
+         case DoorState::Closed:     
+         case DoorState::MovingToOpen: 
+         case DoorState::MovingToClose: 
+
+            string rec_time = GetSqlite3DateTime();
+            result = udb.AddRow(rec_time, static_cast<int>(DoorState state));
+            if(result != 0){
+            cout << "database write error: " << udb.GetErrorStr() << "\n"; 
+            return 0;
+            } // end if 
+
+            break;
+         } // end switch
+      }
+      else {
+         cout << "door sensor error: " << ds.GetErrorStr() << "\n"; 
+         return 0;
       } // end if 
 
       done--;

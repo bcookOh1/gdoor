@@ -2,69 +2,98 @@
 #include "DigitalIO.h"
 
 DigitalIO::DigitalIO(){
-  wiringPiSetup();	// Initialize wiringPi
+   wiringPiSetup();	// Initialize wiringPi
 } // end ctor 
   
 DigitalIO::~DigitalIO(){
 } // end dtor 
 
 
-int DigitalIO::SetupIoPoints(const vector<IoConfig> &dioVect){
-  int ret = 0;
+int DigitalIO::SetIoPoints(const vector<IoConfig> &dioVect){
+   int ret = 0;
 
-  for(auto iter = dioVect.begin(); iter != dioVect.end(); ++iter){
+   _dios.clear();
+   set<unsigned> pinList;
 
+   for(auto iter = dioVect.begin(); iter != dioVect.end(); ++iter){
+      IoConfig ioconfig = (*iter);
+
+      auto result = _dios.insert(make_pair(ioconfig.name, ioconfig));
+      if(result.second == false){
+         _errorStr = "duplicate IO name: " + ioconfig.name;
+         return -1;
+      } // end if 
+
+      auto result = pinList.insert(ioconfig.pin);
+      if(result.second == false){
+         _errorStr = "duplicate pin number: " + ioconfig.pin;
+         return -1;
+      } // end if 
      
+   } // end for 
 
-// map<string, IoConfig> _dios; 
-// set<unsigned> _pinList;
-
-  } // end for 
-
-
-  return ret;
+   return ret;
 } // end SetupIoPoints
 
 int DigitalIO::ConfigureHardware(){
-  int ret = 0;
+   int ret = 0;
 
-  // setup inputs 
-  for(auto iter = _inputs.begin(); iter != _inputs.end(); ++iter){
-    pinMode((*iter)->first.c_str(), get<0>((*iter)->second), get<1>((*iter)->second));
-    pullUpDnControl((*iter)->first.c_str(), get<2>((*iter)->second));  
-  } // end for
+   // setup digital io inputs 
+   for(auto iter = _dios.begin(); iter != _dios.end(); ++iter){
+      pinMode(iter->second.pin, static_cast<int>(iter->second.type));
+      if(iter->second.type == PinType::DInput){
+         pullUpDnControl(iter->second.pin, static_cast<int>(iter->second.resistor_mode));  
+      } // end if 
+   } // end for
 
-  return ret;
+   return ret;
 } // end ConfigureHardware
 
 
-int DigitalIO::ReadAll(IoValues &inputs){
-  int ret = 0;
+int DigitalIO::ReadAll(IoValues &io){
+   int ret = 0;
   
-  // read the requested inputs and return in value vect
-  for(auto iter = inputs.begin();  iter != inputs.end(); ++iter){
+   // read the requested inputs and return in value vect
+   for(auto iter = io.begin();  iter != io.end(); ++iter){
 
+      unsigned pin = 0;
+      int result = GetPinForName(iter->first, pin);
+      if(result != 0){
+         _errorStr = "IO name not found: " + iter->first; 
+         return -1;
+      } // end if 
 
-     inputs.push_back(digitalRead(*iter));
+      iter->second = static_cast<unsigned>(digitalRead(pin));
   
-  } // end for 
+   } // end for 
 
-  return ret;
+   return ret;
 } // end ReadInputs
 
 
-
-int DigitalIO::SetOutputs(const IoValues &values){
+int DigitalIO::SetOutputs(const IoValues &douts){
     int ret = 0;
 
-    // digitalWrite(ledPin, LOW);
+   // read the requested inputs and return in value vect
+   for(auto iter = douts.begin();  iter != douts.end(); ++iter){
+
+      unsigned pin = 0;
+      int result = GetPinForName(iter->first, pin);
+      if(result != 0){
+         _errorStr = "Output name not found: " + iter->first; 
+         return -1;
+      } // end if 
+
+      digitalWrite(pin, static_cast<int>(iter->second));
+  
+   } // end for 
 
     return ret;
 } // end ReadInputs
 
 // use the name to get the pin number from the defined inputs or outputs
 int DigitalIO::GetPinForName(const string &name, unsigned &pin){
-    int ret = 0;
+   int ret = 0;
 
     auto inputsIter = _dios.find(name);
     if(inputsIter != _inputs.end()){
