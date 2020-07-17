@@ -18,7 +18,7 @@ all: $(TARGET)
 # debug: CC += -D_DEBUG_STATEMENTS
 # debug: $(TARGET)
 
-$(TARGET): main.o UpdateDatabase.o ReadConfigurationFile.o Util.o
+$(TARGET): main.o UpdateDatabase.o ReadConfigurationFile.o DigitalIO.o Util.o
 	$(CC) $(LFLAGS) -o $(TARGET)  main.o UpdateDatabase.o ReadConfigurationFile.o Util.o
 
 main.o: main.cpp 
@@ -29,6 +29,9 @@ UpdateDatabase.o: UpdateDatabase.cpp UpdateDatabase.h
 
 ReadConfigurationFile.o: ReadConfigurationFile.cpp ReadConfigurationFile.h 
 	$(CC) $(CFLAGS) -c ReadConfigurationFile.cpp
+
+DigitalIO.o: DigitalIO.cpp DigitalIO.h 
+	$(CC) $(CFLAGS) -c DigitalIO.cpp
 
 Util.o: Util.cpp Util.h  
 	$(CC) $(CFLAGS) -c Util.cpp
