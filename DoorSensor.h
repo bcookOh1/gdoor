@@ -19,8 +19,7 @@ enum class DoorState {
    None = 0,
    Open,
    Closed,
-   MovingToOpen,
-   MovingToClose,
+   Moving,
    NoChange
 }; // end enum 
 
@@ -31,8 +30,8 @@ public:
    DoorSensor();
    ~DoorSensor();
 
-   int Process(IoValues &values);
-   DoorState GetState() { return _currentState; }
+   int Process(IoValues &ioValues);
+   DoorState GetState();
 
    string GetErrorStr(){ return _errorStr; }
 

@@ -1,12 +1,61 @@
+' plantuml diagram 
+' author: Bennett Cook
+' date: 7/18/2020
+' desc: the uses only 2 switch inputs from the raspberry pi 
+'        zero W, up_position and down_position
+' ref: https://plantuml.com
+' ref: https://plantuml.com/commons
+' ref: https://plantuml-documentation.readthedocs.io/en/latest/
 
 @startuml
 
-[*] --> State1
-State1 --> [*]
-State1 : this is a string
-State1 : this is another string
+title Garage Door Sequence
 
-State1 -> State2
-State2 --> [*]
+state "None" as  none
+state "Open" as  open
+state "Moving" as  moving
+state "Closed" as  closed
+
+'state "MovingToOpen" as  moving_to_open
+'state "MovingToClose" as  moving_to_close
+'state "NoChange" as  no_change
+
+center footer  
+
+ this sequence uses only 2 switch inputs from the raspberry pi 
+ zero W, up_position and down_position
+
+endfooter
+
+[*] --> none : first call to DoorSensor::Process
+none --> none : up_position = 0 &&\n down_position = 0
+none --> open : up_position = 1
+none --> closed : down_position = 1
+
+/'
+open --> open : up_position = 1
+open --> moving_to_close : up_position = 0
+
+moving_to_close --> moving_to_close : down_position = 0
+moving_to_close --> closed : down_position = 1
+moving_to_close --> open : up_position = 1
+
+closed --> closed : down_position = 1
+closed --> moving_to_open : down_position = 0
+
+moving_to_open --> moving_to_open : up_position = 0
+moving_to_open --> open : up_position = 1
+moving_to_open --> closed : down_position = 1
+'/
+
+open --> open : up_position = 1
+open --> moving : up_position = 0
+
+moving --> moving : up_position = 0 &&\n down_position = 0
+moving --> closed : down_position = 1
+moving --> open : up_position = 1
+
+closed --> closed : down_position = 1
+closed --> moving : down_position = 0
 
 @enduml

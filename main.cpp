@@ -7,6 +7,7 @@
 #include <thread>
 #include <stdio.h>
 #include <stdlib.h>
+#include <conio.h>
 
 #include "CommonDef.h"
 #include "Util.h"
@@ -69,8 +70,7 @@ int main(int argc, char* argv[]) {
          switch(state){
          case DoorState::Open: 
          case DoorState::Closed:     
-         case DoorState::MovingToOpen: 
-         case DoorState::MovingToClose: 
+         case DoorState::Moving: 
          {
 
             string rec_time = GetSqlite3DateTime();
@@ -82,10 +82,6 @@ int main(int argc, char* argv[]) {
 
          }
              break;
-         case DoorState::NoChange: 
-         case DoorState::None: 
-            // do nothing 
-            break;
          } // end switch
       }
       else {
@@ -93,8 +89,28 @@ int main(int argc, char* argv[]) {
          return 0;
       } // end if 
 
+      // set the outouts 
+      if(state == DoorState::Moving){
+         ioValues["door_cycling"] = 1;
+      }
+      else 
+         ioValues["door_cycling"] = 0;
+      } // end if 
+      digitalIo.SetOutputs(ioValues);
+
+      // test for escape ket to exit the loop 
+      if (kbhit) {
+         char ch = getch(); 
+         if ((int)ch == 27) 
+         break;
+      } // end if 
+
       done--;
    } // end while 
+
+   / turn off the moving led 
+   ioValues["door_cycling"] = 0;
+   digitalIo.SetOutputs(ioValues);
 
    return 0;
 } // end main
