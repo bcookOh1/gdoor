@@ -108,7 +108,7 @@ int main(int argc, char* argv[]) {
       done--;
    } // end while 
 
-   / turn off the moving led 
+   // turn off the moving led 
    ioValues["door_cycling"] = 0;
    digitalIo.SetOutputs(ioValues);
 
