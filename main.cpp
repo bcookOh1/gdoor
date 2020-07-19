@@ -7,7 +7,6 @@
 #include <thread>
 #include <stdio.h>
 #include <stdlib.h>
-#include <conio.h>
 
 #include "CommonDef.h"
 #include "Util.h"
@@ -97,13 +96,6 @@ int main(int argc, char* argv[]) {
          ioValues["door_cycling"] = 0;
       } // end if 
       digitalIo.SetOutputs(ioValues);
-
-      // test for escape ket to exit the loop 
-      if (kbhit) {
-         char ch = getch(); 
-         if ((int)ch == 27) 
-         break;
-      } // end if 
 
       done--;
    } // end while 
