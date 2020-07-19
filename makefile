@@ -7,7 +7,7 @@ CC = g++
 # compiler flags, all warnings and use c++17 libraries
 CFLAGS = -Wall -std=c++17
 
-LFLAGS = -lsqlite3 -lwiringPirm gdoor
+LFLAGS = -lsqlite3 -lwiringPi
 
 # the executable to build
 TARGET = gdoor

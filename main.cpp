@@ -3,8 +3,11 @@
 
 
 #include <iostream>
+#include <iomanip>
+#include <sstream>
 #include <string>
 #include <thread>
+#include <chrono>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -16,6 +19,7 @@
 #include "DoorSensor.h"
 
 using namespace std; 
+
 
 
 int main(int argc, char* argv[]) {
@@ -50,7 +54,7 @@ int main(int argc, char* argv[]) {
    IoValues ioValues = MakeIoValuesMap(ac.dIos);
    DoorSensor ds;
 
-   int done = 10;
+   int done = 100;
    while(done) {
 
       // read the all io points 
@@ -66,38 +70,71 @@ int main(int argc, char* argv[]) {
 
          // set the result 
          DoorState state = ds.GetState();
-         switch(state){
-         case DoorState::Open: 
-         case DoorState::Closed:     
-         case DoorState::Moving: 
-         {
+         switch(state) {
+         case DoorState::Open:
 
-            string rec_time = GetSqlite3DateTime();
-            result = udb.AddRow(rec_time, static_cast<int>(state));
+            result = udb.AddRow(GetSqlite3DateTime(), static_cast<int>(state));
             if(result != 0){
-            cout << "database write error: " << udb.GetErrorStr() << "\n"; 
-            return 0;
+               cout << "database write error: " << udb.GetErrorStr() << "\n"; 
+               return 0;
             } // end if 
 
-         }
+            ioValues["door_cycling"] = 0;
+            PrintIo(ioValues);
+            cout << "open\n";
+
+            break;
+         case DoorState::Closed:     
+
+            result = udb.AddRow(GetSqlite3DateTime(), static_cast<int>(state));
+            if(result != 0){
+               cout << "database write error: " << udb.GetErrorStr() << "\n"; 
+               return 0;
+            } // end if 
+
+            ioValues["door_cycling"] = 0;
+            PrintIo(ioValues);
+            cout << "closed\n";
+
+            break;
+         case DoorState::Moving: 
+ 
+            result = udb.AddRow(GetSqlite3DateTime(), static_cast<int>(state));
+            if(result != 0){
+               cout << "database write error: " << udb.GetErrorStr() << "\n"; 
+               return 0;
+            } // end if 
+
+            ioValues["door_cycling"] = 1;
+
+            PrintIo(ioValues);
+            cout << "moving\n";
+
+            break;
+         case DoorState::None: 
+            cout << "*";
+            cout.flush();
+            break;
+         case DoorState::NoChange:   
+            cout << ".";
+            cout.flush();
+            // do nothing on these cases, it fixes complier warnings   
              break;
+ 
          } // end switch
+
+         // set the outputs 
+         digitalIo.SetOutputs(ioValues);
+ 
       }
       else {
          cout << "door sensor error: " << ds.GetErrorStr() << "\n"; 
          return 0;
       } // end if 
 
-      // set the outouts 
-      if(state == DoorState::Moving){
-         ioValues["door_cycling"] = 1;
-      }
-      else 
-         ioValues["door_cycling"] = 0;
-      } // end if 
-      digitalIo.SetOutputs(ioValues);
+      this_thread::sleep_for(chrono::milliseconds(ac.loopTimeMS));
 
-      done--;
+//       done--;
    } // end while 
 
    // turn off the moving led 

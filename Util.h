@@ -26,6 +26,7 @@ using namespace std;
 
 string GetSqlite3DateTime();
 IoValues MakeIoValuesMap(const vector<IoConfig> &io);
+void PrintIo(const IoValues &ioValues);
 
 
 #endif // end header guard

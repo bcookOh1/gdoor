@@ -35,4 +35,20 @@ IoValues MakeIoValuesMap(const vector<IoConfig> &io) {
    return ret;  
 } // end MakeIoValuesMap
 
+void PrintIo(const IoValues &ioValues){
+
+   ostringstream oss;
+   oss << "\nIO Values\n";
+   oss << "name,value\n";
+
+   for(auto iter = ioValues.begin(); iter != ioValues.end(); ++iter) {
+      oss << iter->first << ", " << iter->second << "\n";
+   } // end for 
+
+   string out = oss.str();
+   cout << out;
+
+} // end PrintIo
+
+
  

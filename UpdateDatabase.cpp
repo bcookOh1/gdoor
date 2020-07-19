@@ -56,8 +56,8 @@ int UpdateDatabase::AddRow(string rec_time, int state)  {
 
 
    // build a insert sql command 
-   sql = "insert into door_state values ";
-   sql += "(rec_time = '" + rec_time  + "', state = " + lexical_cast<string>(state) + " )";
+   sql = "insert into door_state(rec_time, state) values ";
+   sql += "('" + rec_time  + "', " + lexical_cast<string>(state) + " )";
 
    // execute sql statement to insert a row
    rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);

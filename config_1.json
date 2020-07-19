@@ -7,20 +7,21 @@
        { 
          "type": "input",
          "name": "up_position", 
-         "pin": 0,
+         "pin": 23,
          "resistor_mode": "pullup"
        },
        { 
          "type": "input",
          "name": "down_position", 
-         "pin": 1
+         "pin": 24,
+         "resistor_mode": "pullup"
        },
        { 
          "type": "output",
          "name": "door_cycling", 
-         "pin": 3
+         "pin": 25
        }
     ],
-    "loop_time_ms": 2000
+    "loop_time_ms": 500
   }
 }

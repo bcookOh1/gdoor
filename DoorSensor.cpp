@@ -10,17 +10,6 @@ DoorSensor::DoorSensor(){
 DoorSensor::~DoorSensor(){
 } // end dtor 
 
-/*
-enum class DoorState {
-   None = 0,
-   Open,
-   Closed,
-   MovingToOpen,
-   MovingToClose
-}; // end enum 
-
-*/
-
 int DoorSensor::Process(IoValues &ioValues){
    int ret = 0;
 
@@ -64,6 +53,9 @@ int DoorSensor::Process(IoValues &ioValues){
             _currentState = DoorState::Closed;
          } // end if 
 
+         break;
+      case DoorState::NoChange:
+         // do nothing, fixes compiler warnings 
          break;
    } // end switch
    

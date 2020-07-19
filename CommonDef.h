@@ -127,6 +127,7 @@ struct AppConfig  {
       dbPath = rhs.dbPath;
       dbTable = rhs.dbTable;
       dIos = rhs.dIos;
+      loopTimeMS = rhs.loopTimeMS;
    } // end ctor
 
    // assignment operator 
