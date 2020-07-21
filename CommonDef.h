@@ -100,7 +100,7 @@ struct IoConfig {
          resistor_mode = InputResistorMode::PullDown;
       }
       else if(str == INPUT_RESISTOR_PULLUP_STR){
-         resistor_mode = InputResistorMode::PullDown;
+         resistor_mode = InputResistorMode::PullUp;
       }
       else {
          resistor_mode = InputResistorMode::None;
