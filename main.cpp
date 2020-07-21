@@ -17,27 +17,34 @@
 #include "UpdateDatabase.h"
 #include "DigitalIO.h"
 #include "DoorSensor.h"
+#include "ParseCommandLine.h"
 
 using namespace std; 
-
 
 
 int main(int argc, char* argv[]) {
 
    ReadConfigurationFile rcf;
 
-   // check and convert command line params    
-   if(argc == 2) {
-      rcf.SetConfigFilename(argv[1]);
-   }
-   else {
-      cout << "expected a configuration file as a parameter\n";
+   // check and convert command line params   
+   ParseCommandLine pcl;
+   int result = pcl.Parse(int argc, char *argv[]); 
+   if(result != 0) {
+      cout << "command line error: " << pcl.GetErrorString() <<  << endl;
       return 0;
    } // end if 
 
-   int result = rcf.ReadIn();
+
+   if(pcl.GetHelpFlag() == true){
+      cout << pcl.GetHelpString() << endl;
+      return 0;
+   } // end if 
+
+   rcf.SetConfigFilename(pcl.GetConfigFile());
+
+   result = rcf.ReadIn();
    if(result != 0) {
-      cout << "configuration file read in error: " <<  rcf.GetErrorStr() << "\n";
+      cout << "configuration file read in error: " <<  rcf.GetErrorStr() << endl;
       return 0;
    } // end if 
 
@@ -60,7 +67,7 @@ int main(int argc, char* argv[]) {
       // read the all io points 
       result = digitalIo.ReadAll(ioValues);
       if(result != 0){
-        cout << "read gpio error: " << digitalIo.GetErrorStr() << "\n"; 
+        cout << "read gpio error: " << digitalIo.GetErrorStr() << endl; 
         return 0;
       } // end if 
 
@@ -75,7 +82,7 @@ int main(int argc, char* argv[]) {
 
             result = udb.AddRow(GetSqlite3DateTime(), static_cast<int>(state));
             if(result != 0){
-               cout << "database write error: " << udb.GetErrorStr() << "\n"; 
+               cout << "database write error: " << udb.GetErrorStr() << endl; 
                return 0;
             } // end if 
 
@@ -88,7 +95,7 @@ int main(int argc, char* argv[]) {
 
             result = udb.AddRow(GetSqlite3DateTime(), static_cast<int>(state));
             if(result != 0){
-               cout << "database write error: " << udb.GetErrorStr() << "\n"; 
+               cout << "database write error: " << udb.GetErrorStr() << endl; 
                return 0;
             } // end if 
 
@@ -101,7 +108,7 @@ int main(int argc, char* argv[]) {
  
             result = udb.AddRow(GetSqlite3DateTime(), static_cast<int>(state));
             if(result != 0){
-               cout << "database write error: " << udb.GetErrorStr() << "\n"; 
+               cout << "database write error: " << udb.GetErrorStr() << endl"; 
                return 0;
             } // end if 
 
@@ -128,7 +135,7 @@ int main(int argc, char* argv[]) {
  
       }
       else {
-         cout << "door sensor error: " << ds.GetErrorStr() << "\n"; 
+         cout << "door sensor error: " << ds.GetErrorStr() << endl; 
          return 0;
       } // end if 
 
