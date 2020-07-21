@@ -18,8 +18,8 @@ all: $(TARGET)
 debug: CC += -g
 debug: $(TARGET)
 
-$(TARGET): main.o UpdateDatabase.o ReadConfigurationFile.o DigitalIO.o DoorSensor.o Util.o
-	$(CC) $(LFLAGS) -o $(TARGET)  main.o UpdateDatabase.o ReadConfigurationFile.o DigitalIO.o DoorSensor.o Util.o
+$(TARGET): main.o UpdateDatabase.o ReadConfigurationFile.o DigitalIO.o DoorSensor.o ParseCommandLine.o Util.o
+	$(CC) $(LFLAGS) -o $(TARGET)  main.o UpdateDatabase.o ReadConfigurationFile.o DigitalIO.o DoorSensor.o ParseCommandLine Util.o
 
 main.o: main.cpp 
 	$(CC) $(CFLAGS) -c main.cpp 
@@ -38,6 +38,9 @@ DoorSensor.o: DoorSensor.cpp DoorSensor.h
 
 Util.o: Util.cpp Util.h  
 	$(CC) $(CFLAGS) -c Util.cpp
+
+ParseCommandLine.o: ParseCommandLine.cpp ParseCommandLine.h  
+	$(CC) $(CFLAGS) -c ParseCommandLine.cpp
 
 clean:  
 	$(RM) $(TARGET) 
