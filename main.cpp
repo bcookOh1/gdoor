@@ -28,12 +28,11 @@ int main(int argc, char* argv[]) {
 
    // check and convert command line params   
    ParseCommandLine pcl;
-   int result = pcl.Parse(int argc, char *argv[]); 
+   int result = pcl.Parse(argc, argv); 
    if(result != 0) {
-      cout << "command line error: " << pcl.GetErrorString() <<  << endl;
+      cout << "command line error: " << pcl.GetErrorString() <<  endl;
       return 0;
    } // end if 
-
 
    if(pcl.GetHelpFlag() == true){
       cout << pcl.GetHelpString() << endl;
@@ -87,8 +86,11 @@ int main(int argc, char* argv[]) {
             } // end if 
 
             ioValues["door_cycling"] = 0;
-            PrintIo(ioValues);
-            cout << "open\n";
+
+            if(!pcl.GetSilentFlag()){
+               PrintIo(ioValues);
+               cout << "open" << endl;
+            } // end if 
 
             break;
          case DoorState::Closed:     
@@ -100,31 +102,45 @@ int main(int argc, char* argv[]) {
             } // end if 
 
             ioValues["door_cycling"] = 0;
-            PrintIo(ioValues);
-            cout << "closed\n";
+
+            if(!pcl.GetSilentFlag()){
+               PrintIo(ioValues);
+               cout << "closed" << endl;
+            } // end if 
 
             break;
          case DoorState::Moving: 
  
             result = udb.AddRow(GetSqlite3DateTime(), static_cast<int>(state));
             if(result != 0){
-               cout << "database write error: " << udb.GetErrorStr() << endl"; 
+               cout << "database write error: " << udb.GetErrorStr() << endl; 
                return 0;
             } // end if 
 
             ioValues["door_cycling"] = 1;
 
-            PrintIo(ioValues);
-            cout << "moving\n";
+            if(!pcl.GetSilentFlag()){
+               PrintIo(ioValues);
+               cout << "moving" << endl;
+            } // end if 
 
             break;
-         case DoorState::None: 
+         case DoorState::None:
+
+         if(!pcl.GetSilentFlag()){
+            cout << "moving" << endl;
             cout << "*";
             cout.flush();
+         } // endif 
+         
             break;
          case DoorState::NoChange:   
-            cout << ".";
-            cout.flush();
+         
+            if(!pcl.GetSilentFlag()){
+               cout << ".";
+               cout.flush();
+            } // endif 
+
             // do nothing on these cases, it fixes complier warnings   
              break;
  

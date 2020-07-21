@@ -18,7 +18,7 @@ using namespace std;
 /// \const command line flag constants
 const string COMMAND_LINE_HELP_FLAG = "-h";
 const string COMMAND_LINE_CONFIG_FILE_FLAG = "-c";
-const string COMMAND_LINE_SILENT_MODE_FLAG = "-s";
+const string COMMAND_LINE_SILENT_FLAG = "-s";
 const int MINIMUM_ARGUMENTS = 2;
 
 /// \const constants for defaults 
@@ -30,9 +30,9 @@ const string COMMAND_LINE_HELP_STRING =
 "Usage: ./gdoor [-h] -c <config_file> [-s] \n"
 "-h, optional, shows this help text, if included other arguments are ignored\n"
 "-c <config_file>, a json file with the configuration \n"
-"-s optional, the io and state information is not printed but error messages are \n"
+"-s, optional, the io and state information is not printed but error messages are \n"
 "Note: a space is required between -c and the config file \n"
-"\nexample:\n./gdoor -c config_1.json -s ";
+"example:\n./gdoor -c config_1.json -s ";
 
 /// \class ParseCommandLine files ParseCommandLine.h/cpp
 /// \brief class to parse command line with get.. functions 

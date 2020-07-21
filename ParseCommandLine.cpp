@@ -24,7 +24,7 @@ ParseCommandLine::~ParseCommandLine() {
 /// \return 0 success
 /// \return -1 too few command line params
 /// \remark example: ./gdoor -c config_1.json -s
-int ParseCommandLine::Parse(int argc, char ** argv) {
+int ParseCommandLine::Parse(int argc, char **argv) {
 
   int ret = 0;
 
@@ -43,7 +43,7 @@ int ParseCommandLine::Parse(int argc, char ** argv) {
     string arg(argv[i]);
 
     if (arg == COMMAND_LINE_HELP_FLAG) {
-      help_ = true;
+      _help = true;
     }
     else if (arg == COMMAND_LINE_SILENT_FLAG) {
       _silent = true;
@@ -53,7 +53,7 @@ int ParseCommandLine::Parse(int argc, char ** argv) {
       // must have arg after flag 
       if (i + 1 < argc) {
 
-        input_file_ = argv[i + 1];
+        _configFile = argv[i + 1];
         i++; // increment since paired arg  
       }
       else {
