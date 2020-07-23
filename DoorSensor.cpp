@@ -16,35 +16,41 @@ int DoorSensor::Process(IoValues &ioValues){
    switch(_currentState){
       case DoorState::None: 
 
-         if(ioValues["up_position"] == 1){
+         if(ioValues["up_position"] == 1 && 
+            ioValues["down_position"] == 0){
             _currentState = DoorState::Open;
          }
-         else if(ioValues["down_position"] == 1){
+         else if(ioValues["down_position"] == 1 && 
+                 ioValues["up_position"] == 0){
             _currentState = DoorState::Closed;
          } // end if 
 
          break;
       case DoorState::Open: 
 
+         if(ioValues["up_position"] == 0){
+             _currentState = DoorState::MovingToClose;
+         } // end
+
+         break;
+      case DoorState::MovingToClose: 
+
          if(ioValues["up_position"] == 1){
              _currentState = DoorState::Open;
          }
-         else {
-            _currentState = DoorState::Moving;
-         } // end
+         else if(ioValues["down_position"] == 1){
+            _currentState = DoorState::Closed;
+         } // end if
 
          break;
       case DoorState::Closed:     
 
-         if(ioValues["down_position"] == 1){
-             _currentState = DoorState::Closed;
-         }
-         else {
-            _currentState = DoorState::Moving;
+         if(ioValues["down_position"] == 0){
+            _currentState = DoorState::MovingToOpen;
          } // end
 
          break;
-      case DoorState::Moving: 
+      case DoorState::MovingToOpen: 
 
          if(ioValues["up_position"] == 1){
              _currentState = DoorState::Open;
@@ -54,8 +60,9 @@ int DoorSensor::Process(IoValues &ioValues){
          } // end if 
 
          break;
-      case DoorState::NoChange:
-         // do nothing, fixes compiler warnings 
+      
+      default:
+         // do nothing, 
          break;
    } // end switch
    

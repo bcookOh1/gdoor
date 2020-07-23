@@ -13,7 +13,7 @@ title Garage Door Sequence
 
 state "None" as  none
 state "Open" as  open
-state "Moving" as  moving
+/' state "Moving" as  moving '/
 state "Closed" as  closed
 
 'state "MovingToOpen" as  moving_to_open
@@ -28,26 +28,10 @@ center footer
 endfooter
 
 [*] --> none : first call to DoorSensor::Process
-none --> none : up_position = 0 &&\n down_position = 0
-none --> open : up_position = 1
-none --> closed : down_position = 1
+none --> open : up_position = 1 &&\n  down_position = 0
+none --> closed : down_position = 1 &&\n up_position = 0
 
 /'
-open --> open : up_position = 1
-open --> moving_to_close : up_position = 0
-
-moving_to_close --> moving_to_close : down_position = 0
-moving_to_close --> closed : down_position = 1
-moving_to_close --> open : up_position = 1
-
-closed --> closed : down_position = 1
-closed --> moving_to_open : down_position = 0
-
-moving_to_open --> moving_to_open : up_position = 0
-moving_to_open --> open : up_position = 1
-moving_to_open --> closed : down_position = 1
-'/
-
 open --> open : up_position = 1
 open --> moving : up_position = 0
 
@@ -57,5 +41,16 @@ moving --> open : up_position = 1
 
 closed --> closed : down_position = 1
 closed --> moving : down_position = 0
+'/
+
+open --> moving_to_close : up_position = 0
+
+moving_to_close --> closed : down_position = 1
+moving_to_close --> open : up_position = 1
+
+moving_to_open --> open : up_position = 1
+moving_to_open --> closed : down_position = 1
+
+closed --> moving_to_open : down_position = 0
 
 @enduml

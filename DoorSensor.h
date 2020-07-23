@@ -18,8 +18,9 @@
 enum class DoorState {
    None = 0,
    Open,
+   MovingToClose,
    Closed,
-   Moving,
+   MovingToOpen,
    NoChange
 }; // end enum 
 

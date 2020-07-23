@@ -109,7 +109,8 @@ int main(int argc, char* argv[]) {
             } // end if 
 
             break;
-         case DoorState::Moving: 
+         case DoorState::MovingToOpen: 
+         case DoorState::MovingToClose: 
  
             result = udb.AddRow(GetSqlite3DateTime(), static_cast<int>(state));
             if(result != 0){
@@ -121,17 +122,11 @@ int main(int argc, char* argv[]) {
 
             if(!pcl.GetSilentFlag()){
                PrintIo(ioValues);
-               cout << "moving" << endl;
+               if(state == DoorState::MovingToOpen)
+                  cout << "moving to open" << endl;
+               else 
+                  cout << "moving to close" << endl;
             } // end if 
-
-            break;
-         case DoorState::None:
-
-         if(!pcl.GetSilentFlag()){
-            cout << "moving" << endl;
-            cout << "*";
-            cout.flush();
-         } // endif 
          
             break;
          case DoorState::NoChange:   
@@ -141,9 +136,10 @@ int main(int argc, char* argv[]) {
                cout.flush();
             } // endif 
 
-            // do nothing on these cases, it fixes complier warnings   
              break;
- 
+         default:
+
+            break;
          } // end switch
 
          // set the outputs 
