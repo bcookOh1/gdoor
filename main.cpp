@@ -24,6 +24,8 @@ using namespace std;
 
 int main(int argc, char* argv[]) {
 
+   cout << "gdoor started with " << argc << " params" <<  endl;
+
    ReadConfigurationFile rcf;
 
    // check and convert command line params   

@@ -1,0 +1,14 @@
+[Unit]
+Description=run gdoor monitor
+After=multi-user.target
+
+[Service]
+Type=simple
+ExecStart=gdoor -c config_1.json -s
+WorkingDirectory=/home/pi/projects/gdoor
+StandardOutput=append:/home/pi/log1.log
+StandardError=append:/home/pi/log1.log
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
