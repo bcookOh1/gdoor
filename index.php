@@ -34,7 +34,7 @@
 
          class GarageDB extends SQLite3 {
             function __construct() {
-               $this->open('/home/pi/projects/gdoor/garage.db');
+               $this->open('/home/bjc/gdoor/exe/garage.db');
             }
          }
 

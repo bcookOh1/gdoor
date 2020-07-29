@@ -1,13 +1,13 @@
 [Unit]
-Description=run gdoor monitor
+Description=run the garage door monitor
 After=multi-user.target
 
 [Service]
 Type=simple
 ExecStart=gdoor -c config_1.json -s
-WorkingDirectory=/home/pi/projects/gdoor
-StandardOutput=append:/home/pi/log1.log
-StandardError=append:/home/pi/log1.log
+WorkingDirectory=/home/bjc/gdoor/exe/
+StandardOutput=append:/home/bjc/log1.log
+StandardError=append:/home/bjc/log1.log
 Restart=always
 
 [Install]

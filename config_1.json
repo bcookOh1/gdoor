@@ -1,7 +1,7 @@
 {
   "GarageDoorPi": {
     "name": "garage door monitor",
-    "database_path": "/home/pi/projects/gdoor/garage.db",
+    "database_path": "/home/bjc/gdoor/exe/garage.db",
     "database_table": "door_state",
     "digital_io": [
        { 
