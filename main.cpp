@@ -26,6 +26,7 @@ int main(int argc, char* argv[]) {
 
    cout << "gdoor started with " << argc << " params" <<  endl;
 
+   int readTemp = 0;
    ReadConfigurationFile rcf;
 
    // check and convert command line params   
@@ -60,10 +61,20 @@ int main(int argc, char* argv[]) {
 
    // setup empty IoValue map used for algo data 
    IoValues ioValues = MakeIoValuesMap(ac.dIos);
-   DoorSensor ds;
+   DoorSensor ds; 
+
+   // read the temp once at the start so the temperature var is valid
+   string temperature;
+   result = ReadBoardTemperature(string &temperature)
+   if(result != 0){
+      cout << "board temperature read failed " << endl;
+      return 0;
+   } // end if 
+
 
    int done = 100;
    while(done) {
+      static readTemp = 0;
 
       // read the all io points 
       result = digitalIo.ReadAll(ioValues);
@@ -81,7 +92,7 @@ int main(int argc, char* argv[]) {
          switch(state) {
          case DoorState::Open:
 
-            result = udb.AddRow(GetSqlite3DateTime(), static_cast<int>(state));
+            result = udb.AddRow(GetSqlite3DateTime(), static_cast<int>(state), temperature);
             if(result != 0){
                cout << "database write error: " << udb.GetErrorStr() << endl; 
                return 0;
@@ -97,7 +108,7 @@ int main(int argc, char* argv[]) {
             break;
          case DoorState::Closed:     
 
-            result = udb.AddRow(GetSqlite3DateTime(), static_cast<int>(state));
+            result = udb.AddRow(GetSqlite3DateTime(), static_cast<int>(state), temperature);
             if(result != 0){
                cout << "database write error: " << udb.GetErrorStr() << endl; 
                return 0;
@@ -114,7 +125,7 @@ int main(int argc, char* argv[]) {
          case DoorState::MovingToOpen: 
          case DoorState::MovingToClose: 
  
-            result = udb.AddRow(GetSqlite3DateTime(), static_cast<int>(state));
+            result = udb.AddRow(GetSqlite3DateTime(), static_cast<int>(state), temperature);
             if(result != 0){
                cout << "database write error: " << udb.GetErrorStr() << endl; 
                return 0;
@@ -153,8 +164,19 @@ int main(int argc, char* argv[]) {
          return 0;
       } // end if 
 
-      this_thread::sleep_for(chrono::milliseconds(ac.loopTimeMS));
+      // read temp every 10 seconds
+      if(readTemp >= (ac.loopTimeMS * 1000 * 10)){
+         
+         // ignore the error here since is worked prior to the while 
+         // and no error show occure 
+         ReadBoardTemperature(temperature);
+         readTemp = 0
+      }
+      else {
+         readTemp += ac.loopTimeMS;
+      } // end if  
 
+      this_thread::sleep_for(chrono::milliseconds(ac.loopTimeMS));
 //       done--;
    } // end while 
 

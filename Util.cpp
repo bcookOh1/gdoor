@@ -50,5 +50,32 @@ void PrintIo(const IoValues &ioValues){
 
 } // end PrintIo
 
+int ReadBoardTemperature(string &temperature){
+   temperature = "";
+   string filepath = "/sys/class/thermal/thermal_zone0/temp";
+   ifstream in; 
+
+   in.open(filepath.c_str()); // open the file
+   if(in.fail()) {
+      return -1;
+   } // end if
+
+   temperature = "";
+   getline(in, temperature);
+   in.close();
+
+   // insert a period char 3 from the end 
+   try {
+      temperature.insert((temperature.end() - 3),'.');
+   }
+   catch(length_error *le) {
+      temperature = "";
+      return -1;
+   }  // end catch 
+
+   return 0; // still here all good
+} // end ReadBoardTemperature 
+
+
 
  

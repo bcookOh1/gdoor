@@ -14,6 +14,7 @@
 #include <map>
 #include <tuple>
 #include <iostream>
+#include <fstream>
 #include <iomanip>
 #include <sstream>
 #include <ctime>
@@ -27,6 +28,7 @@ using namespace std;
 string GetSqlite3DateTime();
 IoValues MakeIoValuesMap(const vector<IoConfig> &io);
 void PrintIo(const IoValues &ioValues);
+int ReadBoardTemperature(string &temperature);
 
 
 #endif // end header guard

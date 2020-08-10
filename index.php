@@ -1,6 +1,10 @@
 
 <!DOCTYPE html> 
 <html> 
+   <head>
+      <link href="gdoor.css" rel="stylesheet">
+      <title>Garage Door Monitor</title>
+   </head>
    <body>
       <?php 
 
@@ -8,7 +12,7 @@
 
             switch($stateValue){
                case 1:  
-                  return "Open";
+                  return "Opened";
                   break;  
                case 2:  
                   return "MovingToClose";
@@ -28,8 +32,7 @@
             }
          }
       
-         header("refresh: 1"); 
-
+//         header("refresh: 1"); 
          echo "<h2> The Garage Door </h2>"; 
 
          class GarageDB extends SQLite3 {
@@ -52,7 +55,7 @@
             $stateStr = PrintState($row['state']);
 
             if($first == 1){
-               echo "is <b> {$stateStr} </b> at {$rec_time} <br> <br>";
+               echo "<b> {$stateStr} </b> at {$rec_time} <br> <br>";
                $first = 0;
 
                echo "<table border = 1>
