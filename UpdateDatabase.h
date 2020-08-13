@@ -29,7 +29,9 @@ public:
 
   int SetDbFullPath(const string &fullPath);
   int SetDbTableName(const string &dbTable);
-  int AddRow(string rec_time, int state);
+  int AddRow(const string &rec_time, 
+             int state, 
+             const string &temperature);
   string GetErrorStr() { return _errorStr; }
 
 private: 
@@ -37,7 +39,6 @@ private:
   string _dbFullPath;
   string _dbTable;
   string _errorStr;
-
 
    // example from documentation
    static int callback(void *NotUsed, int argc, char **argv, char **azColName) {

@@ -5,7 +5,7 @@ create table door_state (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   rec_time text not null,
   state int not null,
-  temperature text not null,
+  temperature text not null
 );
 
 insert into door_state (rec_time, state, temperature)

@@ -7,7 +7,7 @@ CC = g++
 # compiler flags, all warnings and use c++17 libraries
 CFLAGS = -Wall -std=c++17
 
-LFLAGS = -lsqlite3 -lwiringPi
+LFLAGS = -lsqlite3 -lwiringPi -lpthread
 
 # the executable to build
 TARGET = gdoor
@@ -18,8 +18,8 @@ all: $(TARGET)
 debug: CC += -g
 debug: $(TARGET)
 
-$(TARGET): main.o UpdateDatabase.o ReadConfigurationFile.o DigitalIO.o DoorSensor.o ParseCommandLine.o Util.o
-	$(CC) $(LFLAGS) -o $(TARGET)  main.o UpdateDatabase.o ReadConfigurationFile.o DigitalIO.o DoorSensor.o ParseCommandLine.o Util.o
+$(TARGET): main.o UpdateDatabase.o ReadConfigurationFile.o DigitalIO.o DoorSensor.o ParseCommandLine.o Util.o TestSingleton.o
+	$(CC) $(LFLAGS) -o $(TARGET)  main.o UpdateDatabase.o ReadConfigurationFile.o DigitalIO.o DoorSensor.o ParseCommandLine.o Util.o TestSingleton.o
 
 main.o: main.cpp 
 	$(CC) $(CFLAGS) -c main.cpp 
@@ -41,6 +41,9 @@ Util.o: Util.cpp Util.h
 
 ParseCommandLine.o: ParseCommandLine.cpp ParseCommandLine.h  
 	$(CC) $(CFLAGS) -c ParseCommandLine.cpp
+
+TestSingleton.o: TestSingleton.cpp TestSingleton.h  
+	$(CC) $(CFLAGS) -c TestSingleton.cpp
 
 clean:  
 	$(RM) $(TARGET) 

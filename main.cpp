@@ -18,6 +18,7 @@
 #include "DigitalIO.h"
 #include "DoorSensor.h"
 #include "ParseCommandLine.h"
+#include "TestSingleton.h"
 
 using namespace std; 
 
@@ -26,7 +27,12 @@ int main(int argc, char* argv[]) {
 
    cout << "gdoor started with " << argc << " params" <<  endl;
 
-   int readTemp = 0;
+   TestSingleton ts("GDoor_Program");
+   if(!ts.IsSingleton()){
+      cout << "another instance of gdoor is already running, exiting" <<  endl;
+      return 0;
+   } // end if 
+
    ReadConfigurationFile rcf;
 
    // check and convert command line params   
@@ -65,7 +71,7 @@ int main(int argc, char* argv[]) {
 
    // read the temp once at the start so the temperature var is valid
    string temperature;
-   result = ReadBoardTemperature(string &temperature)
+   result = ReadBoardTemperature(temperature);
    if(result != 0){
       cout << "board temperature read failed " << endl;
       return 0;
@@ -74,7 +80,7 @@ int main(int argc, char* argv[]) {
 
    int done = 100;
    while(done) {
-      static readTemp = 0;
+      static int readTemp = 0;
 
       // read the all io points 
       result = digitalIo.ReadAll(ioValues);
@@ -170,7 +176,7 @@ int main(int argc, char* argv[]) {
          // ignore the error here since is worked prior to the while 
          // and no error show occure 
          ReadBoardTemperature(temperature);
-         readTemp = 0
+         readTemp = 0;
       }
       else {
          readTemp += ac.loopTimeMS;

@@ -48,11 +48,13 @@
          $first = 1;
          $rec_time = "None";
          $state = "None";
+         $boardTemp = "None";
 
          while ($row = $result->fetchArray()) {
 
             $rec_time = $row['rec_time'];
             $stateStr = PrintState($row['state']);
+            $boardTemp = $row['temperature'];
 
             if($first == 1){
                echo "<b> {$stateStr} </b> at {$rec_time} <br> <br>";
@@ -60,20 +62,21 @@
 
                echo "<table border = 1>
                         <tr>
-                           <th>State</th>
                            <th>Date and Time</th>
+                           <th>State</th>
+                           <th>Pi Temperature</th>
                         </tr> ";
             }
             else {
 
                echo "<tr>
-                        <td>$stateStr</td>
                         <td>$rec_time</td>
+                        <td>$stateStr</td>
+                        <td>$boardTemp</td>
                     </tr>";
             } 
          }
-         echo "</table>";
-
+         echo "</table>"; 
 
          $db->exec('end');
          $db->close();
