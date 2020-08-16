@@ -7,7 +7,7 @@ CC = g++
 # compiler flags, all warnings and use c++17 libraries
 CFLAGS = -Wall -std=c++17
 
-LFLAGS = -lsqlite3 -lwiringPi -lpthread
+LFLAGS = -L/usr/lib/arm-linux-gnueabihf -lsqlite3 -lwiringPi -lpthread -lboost_system -lboost_filesystem
 
 # the executable to build
 TARGET = gdoor
@@ -18,8 +18,8 @@ all: $(TARGET)
 debug: CC += -g
 debug: $(TARGET)
 
-$(TARGET): main.o UpdateDatabase.o ReadConfigurationFile.o DigitalIO.o DoorSensor.o ParseCommandLine.o Util.o TestSingleton.o
-	$(CC) $(LFLAGS) -o $(TARGET)  main.o UpdateDatabase.o ReadConfigurationFile.o DigitalIO.o DoorSensor.o ParseCommandLine.o Util.o TestSingleton.o
+$(TARGET): main.o UpdateDatabase.o ReadConfigurationFile.o DigitalIO.o DoorSensor.o ParseCommandLine.o Util.o ProcessCount.o
+	$(CC) $(LFLAGS) -o $(TARGET)  main.o UpdateDatabase.o ReadConfigurationFile.o DigitalIO.o DoorSensor.o ParseCommandLine.o Util.o ProcessCount.o
 
 main.o: main.cpp 
 	$(CC) $(CFLAGS) -c main.cpp 
@@ -42,8 +42,8 @@ Util.o: Util.cpp Util.h
 ParseCommandLine.o: ParseCommandLine.cpp ParseCommandLine.h  
 	$(CC) $(CFLAGS) -c ParseCommandLine.cpp
 
-TestSingleton.o: TestSingleton.cpp TestSingleton.h  
-	$(CC) $(CFLAGS) -c TestSingleton.cpp
+ProcessCount.o: ProcessCount.cpp ProcessCount.h  
+	$(CC) $(CFLAGS) -c ProcessCount.cpp
 
 clean:  
 	$(RM) $(TARGET) 

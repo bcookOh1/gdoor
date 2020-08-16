@@ -18,18 +18,29 @@
 #include "DigitalIO.h"
 #include "DoorSensor.h"
 #include "ParseCommandLine.h"
-#include "TestSingleton.h"
+#include <boost/filesystem.hpp>
+#include "ProcessCount.h"
 
 using namespace std; 
+namespace filesys = boost::filesystem;
 
 
 int main(int argc, char* argv[]) {
 
    cout << "gdoor started with " << argc << " params" <<  endl;
 
-   TestSingleton ts("GDoor_Program");
-   if(!ts.IsSingleton()){
-      cout << "another instance of gdoor is already running, exiting" <<  endl;
+   string exeName;
+   filesys::path exePath(argv[0]);
+   if(exePath.has_stem()) {
+     exeName = exePath.stem().string();
+   }
+   else {
+     exeName = exePath.filename().string();
+   } // end if 
+
+   ProcessCount pc(exeName);
+   if(pc.GetCount() > 1){
+      cout <<  "another instance of " << argv[0] << " is running, exiting" << endl;
       return 0;
    } // end if 
 
@@ -77,9 +88,7 @@ int main(int argc, char* argv[]) {
       return 0;
    } // end if 
 
-
-   int done = 100;
-   while(done) {
+   while(true) {
       static int readTemp = 0;
 
       // read the all io points 
@@ -183,7 +192,7 @@ int main(int argc, char* argv[]) {
       } // end if  
 
       this_thread::sleep_for(chrono::milliseconds(ac.loopTimeMS));
-//       done--;
+
    } // end while 
 
    // turn off the moving led 
