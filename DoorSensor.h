@@ -15,6 +15,9 @@
 #include "CommonDef.h"
 #include "Util.h"
 
+using namespace std;
+
+
 enum class DoorState {
    None = 0,
    Open,
@@ -26,8 +29,8 @@ enum class DoorState {
 
 
 class DoorSensor {
-
 public:
+
    DoorSensor();
    ~DoorSensor();
 

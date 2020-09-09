@@ -33,7 +33,6 @@
          }
       
 //         header("refresh: 1"); 
-         echo "<h2> The Garage Door </h2>"; 
 
          class GarageDB extends SQLite3 {
             function __construct() {
@@ -43,7 +42,7 @@
 
          $db = new GarageDB();
          $db->exec('begin');
-         $result = $db->query('select * from door_state order by id desc limit 10');
+         $result = $db->query('select * from door_state order by id desc limit 11');
 
          $first = 1;
          $rec_time = "None";
@@ -54,15 +53,26 @@
 
             $rec_time = $row['rec_time'];
             $stateStr = PrintState($row['state']);
-            $boardTemp = $row['temperature'];
+            $tempC = $row['temperature'];
+
+            $t=substr($rec_time,11,strlen($rec_time));
+            $y=substr($rec_time,0,4);
+            $md=substr($rec_time,5,5);
+            $d=$md . "-" . $y;
+            $td = $t . " " . $d;
+
+            // make a temp string like:  "20.6C,(69.2F)"
+            $temp_str = sprintf("%.1fC (%.1fF)",(float)$tempC,($tempC*(9/5))+32);
 
             if($first == 1){
-               echo "<b> {$stateStr} </b> at {$rec_time} <br> <br>";
+               
+               echo "<p class=\"current\"> The garage door is <span class=\"current\">$stateStr</span>, $td</p>";
                $first = 0;
 
-               echo "<table border = 1>
+               echo "<table id=\"history\">
+                        <caption style=\"text-align:left\" >The last 10 Open and Closings: </caption>
                         <tr>
-                           <th>Date and Time</th>
+                           <th>Time and Date</th>
                            <th>State</th>
                            <th>Pi Temperature</th>
                         </tr> ";
@@ -70,9 +80,9 @@
             else {
 
                echo "<tr>
-                        <td>$rec_time</td>
+                        <td>$td</td>
                         <td>$stateStr</td>
-                        <td>$boardTemp</td>
+                        <td>$temp_str</td>
                     </tr>";
             } 
          }

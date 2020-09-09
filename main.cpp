@@ -1,34 +1,41 @@
-// 7-5-2020
-// desc: example mostly from the SQlite3 documentation 
+// file: main.cpp
+// date: 08/20/2020 
+// description: entry point for the gdoor raspberry pi zero application. 
+//  
 
 
 #include <iostream>
 #include <iomanip>
-#include <sstream>
 #include <string>
 #include <thread>
 #include <chrono>
-#include <stdio.h>
-#include <stdlib.h>
-
+ #include <boost/filesystem.hpp>
+ 
 #include "CommonDef.h"
 #include "Util.h"
+#include "ProcessCount.h"
+#include "ParseCommandLine.h"
 #include "ReadConfigurationFile.h"
 #include "UpdateDatabase.h"
 #include "DigitalIO.h"
 #include "DoorSensor.h"
-#include "ParseCommandLine.h"
-#include <boost/filesystem.hpp>
-#include "ProcessCount.h"
 
 using namespace std; 
 namespace filesys = boost::filesystem;
 
 
+// entry point for the program
+// usage: ./gdoor [-h] -c <config_file> [-s] 
+// -h, optional, shows this help text, if included other arguments are ignored
+// -c <config_file>, a json file with the configuration 
+// -s, optional, the io and state information is not printed but error messages are 
+// Note: a space is required between -c and the config file 
+// example: ./gdoor -c config_1.json -s 
 int main(int argc, char* argv[]) {
 
    cout << "gdoor started with " << argc << " params" <<  endl;
 
+   // get and clean the exe name, used for process count
    string exeName;
    filesys::path exePath(argv[0]);
    if(exePath.has_stem()) {
@@ -38,14 +45,14 @@ int main(int argc, char* argv[]) {
      exeName = exePath.filename().string();
    } // end if 
 
+   // get the process count for this program, exit if another instantance is running
    ProcessCount pc(exeName);
    if(pc.GetCount() > 1){
-      cout <<  "another instance of " << argv[0] << " is running, exiting" << endl;
+      cout <<  "another instance of " << exeName << " is running, exiting" << endl;
       return 0;
    } // end if 
 
-   ReadConfigurationFile rcf;
-
+   
    // check and convert command line params   
    ParseCommandLine pcl;
    int result = pcl.Parse(argc, argv); 
@@ -59,6 +66,8 @@ int main(int argc, char* argv[]) {
       return 0;
    } // end if 
 
+   // class to read the json config file, from command line filename 
+   ReadConfigurationFile rcf;
    rcf.SetConfigFilename(pcl.GetConfigFile());
 
    result = rcf.ReadIn();
@@ -67,11 +76,15 @@ int main(int argc, char* argv[]) {
       return 0;
    } // end if 
 
+   // set the config in the AppConfig class, this is a a simple container class  
+   // passed to to other classes in the app
    AppConfig ac = rcf.GetConfiguration();
+
+   // set the sqlite3 file path in the database class
    UpdateDatabase udb;
    udb.SetDbFullPath(ac.dbPath);
 
-   // make a digial io class and configure digial io points
+   // make a digial io class and configure digital io points
    DigitalIO digitalIo;
    digitalIo.SetIoPoints(ac.dIos);
    digitalIo.ConfigureHardware();
@@ -88,9 +101,15 @@ int main(int argc, char* argv[]) {
       return 0;
    } // end if 
 
-   while(true) {
-      static int readTemp = 0;
+   // used to limit the number of times the pi temp is read
+   int readTemp = 0; 
 
+   // main control loop, it follows this structure:
+   //  - read inputs
+   //  - solve squencing logic
+   //  - set outputs/write database record
+   while(true) {
+      
       // read the all io points 
       result = digitalIo.ReadAll(ioValues);
       if(result != 0){

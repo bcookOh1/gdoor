@@ -19,6 +19,8 @@
 
 
 using namespace std;
+using namespace boost;
+
 
 class DigitalIO {
 

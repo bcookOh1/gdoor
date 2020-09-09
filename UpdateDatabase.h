@@ -1,5 +1,3 @@
-
-
 // file: UpdateDatabase.h header for UpdateDatabase
 // author: Bennett Cook
 // date: 07-05-2020
@@ -19,9 +17,9 @@
 using namespace std;
 using namespace boost;
 
-
+// class to open and add a record to the database. The database is 
+// how data is passes to the web page  
 class UpdateDatabase {
-
 public:
 
   UpdateDatabase();

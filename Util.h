@@ -19,13 +19,16 @@
 #include <sstream>
 #include <ctime>
 
-
 #include "CommonDef.h"
+
 
 using namespace std;
 
-
+// return a date string in standard format "YYYY-MM-DD HH:MM:SS" with
+// the current date and time  
 string GetSqlite3DateTime();
+
+// 
 IoValues MakeIoValuesMap(const vector<IoConfig> &io);
 void PrintIo(const IoValues &ioValues);
 int ReadBoardTemperature(string &temperature);

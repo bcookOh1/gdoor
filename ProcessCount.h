@@ -25,6 +25,7 @@ using namespace std;
 using namespace boost;
 using namespace boost::process;
 
+// class to read the number of running instances for process name
 class ProcessCount {
 public:
 
