@@ -41,13 +41,15 @@ using IoValues = map<string, unsigned>;
 // configuration file data names
 const string CONFIG_APP_NAME = "GarageDoorPi.name";
 const string CONFIG_DB_PATH = "GarageDoorPi.database_path";
-const string CONFIG_DB_TABLE = "GarageDoorPi.database_table";
+const string CONFIG_DB_DOOR_STATE_TABLE = "GarageDoorPi.door_state_table";
+const string CONFIG_DB_SENSOR_TABLE = "GarageDoorPi.sensor_table";
 const string CONFIG_DIGITAL_IO = "GarageDoorPi.digital_io";
 const string CONFIG_DIGITAL_IO_TYPE = "type";
 const string CONFIG_DIGITAL_IO_NAME = "name";
 const string CONFIG_DIGITAL_IO_PIN = "pin";
 const string CONFIG_DIGITAL_INPUT_RESISTOR_MODE = "resistor_mode";
 const string CONFIG_LOOP_TIME_MS = "GarageDoorPi.loop_time_ms";
+const string CONFIG_SENSOR_READ_PERIOD_SEC = "GarageDoorPi.sensor_read_period_sec";
 
 // string values for digital io type 
 const string DIGITAL_INPUT_STR = "input";
@@ -125,18 +127,22 @@ struct AppConfig  {
    AppConfig(const AppConfig &rhs) {
       appName = rhs.appName;
       dbPath = rhs.dbPath;
-      dbTable = rhs.dbTable;
+      dbDoorStateTable = rhs.dbDoorStateTable;
+      dbSensorTable = rhs.dbSensorTable;
       dIos = rhs.dIos;
       loopTimeMS = rhs.loopTimeMS;
+      sensorReadPeriodSec = rhs.sensorReadPeriodSec;
    } // end ctor
 
    // assignment operator 
    AppConfig &operator=(const AppConfig &rhs) {
       appName = rhs.appName;
       dbPath = rhs.dbPath;
-      dbTable = rhs.dbTable;
+      dbDoorStateTable = rhs.dbDoorStateTable;
+      dbSensorTable = rhs.dbSensorTable;
       dIos = rhs.dIos;
       loopTimeMS = rhs.loopTimeMS;
+      sensorReadPeriodSec = rhs.sensorReadPeriodSec;
       return *this;
    } // assignment operator
 
@@ -144,16 +150,20 @@ struct AppConfig  {
    void Initialize() {
       appName = "";
       dbPath = "";
-      dbTable = "";
+      dbDoorStateTable = "";
+      dbSensorTable = "";
       dIos.clear();
       loopTimeMS = 0;
+      sensorReadPeriodSec = 0;
    } // end Initialize
 
    string appName;               /// application name 
    string dbPath;                /// the full path to the shared databased 
-   string dbTable;               /// name of the status table 
+   string dbDoorStateTable;      /// name of the door state table 
+   string dbSensorTable;         /// name of the sensor reading table 
    vector<IoConfig> dIos;        /// a list of the digital io points 
-   int loopTimeMS;               /// the programs read input loop time
+   int loopTimeMS;               /// the program's read input loop time in ms
+   int sensorReadPeriodSec;      /// the sensor read period in seconds 
 
 }; // end struct 
 

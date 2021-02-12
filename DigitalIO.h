@@ -12,14 +12,11 @@
 #include <map>
 #include <set>
 #include <vector>
-#include <boost/assert.hpp>
+#include <boost/assert.hpp> // may not be in boost namespace
 
 #include "CommonDef.h"
 #include "Util.h"
-
-
 using namespace std;
-using namespace boost;
 
 
 class DigitalIO {

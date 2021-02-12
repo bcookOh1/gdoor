@@ -8,7 +8,7 @@
 #define UPDATEDATABASE_H
 
 #include "sqlite3.h"
-#include "CommonDef.h"
+
 
 #include <string>
 #include <tuple>
@@ -26,17 +26,41 @@ public:
   ~UpdateDatabase();
 
   int SetDbFullPath(const string &fullPath);
-  int SetDbTableName(const string &dbTable);
-  int AddRow(const string &rec_time, 
-             int state, 
-             const string &temperature);
+  int SetDoorStateTableName(const string &dbDoorStateTable);
+  int SetSensorDataTableName(const string &dbSensorDataTable);
+
+  int OpenAndBeginDB();
+  int CommitAndCloseDB();
+
+  int AddDoorStateRow(const string &rec_time, 
+                      int state, 
+                      const string &temperature);
+
+  int AddOneDoorStateRow(const string &rec_time, 
+                         int state, 
+                         const string &temperature);
+
+  int AddSensorDataRow(const string &timeStamp, 
+                       const string &temperature,
+                       const string &temperature_units,
+                       const string &humidity,
+                       const string &humidity_units);
+
+  int AddOneSensorDataRow(const string &timeStamp, 
+                         const string &temperature,
+                         const string &temperature_units,
+                         const string &humidity,
+                         const string &humidity_units);
+
   string GetErrorStr() { return _errorStr; }
 
 private: 
 
   string _dbFullPath;
-  string _dbTable;
+  string _dbDoorStateTable;
+  string _dbSensorDataTable;
   string _errorStr;
+  sqlite3 *_db;
 
    // example from documentation
    static int callback(void *NotUsed, int argc, char **argv, char **azColName) {

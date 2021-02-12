@@ -25,7 +25,8 @@ int ReadConfigurationFile::ReadIn() {
 
       _appConfig.appName = GetScalarData<string>(tree, CONFIG_APP_NAME);
       _appConfig.dbPath = GetScalarData<string>(tree, CONFIG_DB_PATH);
-      _appConfig.dbTable = GetScalarData<string>(tree, CONFIG_DB_TABLE);
+      _appConfig.dbDoorStateTable = GetScalarData<string>(tree, CONFIG_DB_DOOR_STATE_TABLE);
+      _appConfig.dbSensorTable = GetScalarData<string>(tree, CONFIG_DB_SENSOR_TABLE);
 
       // get the IO configuration
       for(pt::ptree::value_type &v : tree.get_child(CONFIG_DIGITAL_IO)) {
@@ -61,6 +62,7 @@ int ReadConfigurationFile::ReadIn() {
       } // end for 
 
       _appConfig.loopTimeMS = GetScalarData<int>(tree, CONFIG_LOOP_TIME_MS);
+      _appConfig.sensorReadPeriodSec = GetScalarData<int>(tree, CONFIG_SENSOR_READ_PERIOD_SEC);
 
    }
    catch(std::exception &e) {

@@ -12,6 +12,8 @@
 #ifndef READCONFIGURATIONFILE_H
 #define READCONFIGURATIONFILE_H
 
+#define BOOST_BIND_GLOBAL_PLACEHOLDERS
+
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/lexical_cast.hpp>
@@ -46,7 +48,7 @@ public:
 
    /// \brief perform the json file read-in and convert element to AppConfig members.
    /// \return 0 success
-   /// \return -1 an error occured and the error string was set
+   /// \return -1 an error occurred and the error string was set
    int ReadIn();
 
    /// \brief get function for the config 
@@ -81,7 +83,7 @@ private:
                   _errorStr += e.what();
                } // end try catch
 
-               // if exception occured throw  
+               // if exception occurred throw  
                if(_errorStr.length() > 0) throw _errorStr.c_str();
 
             } // end for 
@@ -93,7 +95,7 @@ private:
          _errorStr += e.what();
       } // end try/catch
 
-      // if exception occured throw  
+      // if exception occurred throw  
       if(_errorStr.length() > 0) throw _errorStr.c_str();
 
       return ret;
@@ -115,7 +117,7 @@ private:
                _errorStr += e.what();
             } // end try catch
 
-            // if exception occured throw  
+            // if exception occurred throw  
             if(_errorStr.length() > 0) throw _errorStr.c_str();
          } // end for 
 
@@ -125,7 +127,7 @@ private:
          _errorStr += e.what();
       } // end try/catch
 
-      // if exception occured throw  
+      // if exception occurred throw  
       if(_errorStr.length() > 0) throw _errorStr.c_str();
 
       return ret;
@@ -145,7 +147,7 @@ private:
          _errorStr += e.what();
       } // end try/catch
 
-      // if exception occured throw  
+      // if exception occurred throw  
       if(_errorStr.length() > 0) throw _errorStr.c_str();
 
       return ret;

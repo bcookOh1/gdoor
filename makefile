@@ -4,8 +4,8 @@
 # compiler for c++
 CC = g++
 
-# compiler flags, all warnings and use c++17 libraries
-CFLAGS = -Wall -std=c++17
+# compiler flags, all warnings and use c++2a libraries
+CFLAGS = -Wall -std=c++2a 
 
 LFLAGS = -L/usr/lib/arm-linux-gnueabihf -lsqlite3 -lwiringPi -lpthread -lboost_system -lboost_filesystem
 
@@ -18,8 +18,8 @@ all: $(TARGET)
 debug: CC += -g
 debug: $(TARGET)
 
-$(TARGET): main.o UpdateDatabase.o ReadConfigurationFile.o DigitalIO.o DoorSensor.o ParseCommandLine.o Util.o ProcessCount.o
-	$(CC) $(LFLAGS) -o $(TARGET)  main.o UpdateDatabase.o ReadConfigurationFile.o DigitalIO.o DoorSensor.o ParseCommandLine.o Util.o ProcessCount.o
+$(TARGET): main.o UpdateDatabase.o ReadConfigurationFile.o DigitalIO.o DoorSensor.o ParseCommandLine.o Util.o ProcessCount.o Si7021.o I2C.o
+	$(CC) $(LFLAGS) -o $(TARGET)  main.o UpdateDatabase.o ReadConfigurationFile.o DigitalIO.o DoorSensor.o ParseCommandLine.o Util.o ProcessCount.o Si7021.o I2C.o
 
 main.o: main.cpp 
 	$(CC) $(CFLAGS) -c main.cpp 
@@ -44,6 +44,13 @@ ParseCommandLine.o: ParseCommandLine.cpp ParseCommandLine.h
 
 ProcessCount.o: ProcessCount.cpp ProcessCount.h  
 	$(CC) $(CFLAGS) -c ProcessCount.cpp
+
+Si7021.o: Si7021.cpp Si7021.h 
+	$(CC) $(CFLAGS) -c Si7021.cpp
+
+I2C.o: I2C.cpp I2C.h 
+	$(CC) $(CFLAGS) -c I2C.cpp
+
 
 clean:  
 	$(RM) $(TARGET) 

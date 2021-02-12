@@ -9,7 +9,7 @@
 #include <string>
 #include <thread>
 #include <chrono>
- #include <boost/filesystem.hpp>
+#include <boost/filesystem.hpp>
  
 #include "CommonDef.h"
 #include "Util.h"
@@ -19,6 +19,8 @@
 #include "UpdateDatabase.h"
 #include "DigitalIO.h"
 #include "DoorSensor.h"
+#include "Si7021.h"
+
 
 using namespace std; 
 namespace filesys = boost::filesystem;
@@ -51,8 +53,7 @@ int main(int argc, char* argv[]) {
       cout <<  "another instance of " << exeName << " is running, exiting" << endl;
       return 0;
    } // end if 
-
-   
+ 
    // check and convert command line params   
    ParseCommandLine pcl;
    int result = pcl.Parse(argc, argv); 
@@ -72,7 +73,7 @@ int main(int argc, char* argv[]) {
 
    result = rcf.ReadIn();
    if(result != 0) {
-      cout << "configuration file read in error: " <<  rcf.GetErrorStr() << endl;
+      cout << "configuration file read-in error: " <<  rcf.GetErrorStr() << endl;
       return 0;
    } // end if 
 
@@ -83,6 +84,8 @@ int main(int argc, char* argv[]) {
    // set the sqlite3 file path in the database class
    UpdateDatabase udb;
    udb.SetDbFullPath(ac.dbPath);
+   udb.SetDoorStateTableName(ac.dbDoorStateTable);
+   udb.SetSensorDataTableName(ac.dbSensorTable);
 
    // make a digial io class and configure digital io points
    DigitalIO digitalIo;
@@ -93,6 +96,21 @@ int main(int argc, char* argv[]) {
    IoValues ioValues = MakeIoValuesMap(ac.dIos);
    DoorSensor ds; 
 
+   // define a sensor to read temp and humid through i2c 
+   Si7021 si7021Sensor;
+
+   // lambda to read sensor as callable object in a thread
+   // use local sensor object reference  
+   auto readSensor = [&si7021Sensor](SI7021_READINGS reading) ->int {
+
+      int result = si7021Sensor.ReadSensor(reading);
+      if(result != 0) {
+         cout << si7021Sensor.GetErrorStr() << endl;
+      } // end if 
+
+      return result;
+   }; // end lambda
+
    // read the temp once at the start so the temperature var is valid
    string temperature;
    result = ReadBoardTemperature(temperature);
@@ -101,12 +119,20 @@ int main(int argc, char* argv[]) {
       return 0;
    } // end if 
 
-   // used to limit the number of times the pi temp is read
-   int readTemp = 0; 
+   // used to limit the number of times the pi temp and
+   // Si7021 sensors 
+   float readPiTempInterval = 0.0f; 
+   float readSi7072Interval = 0.0f; 
+
+   // flag when read Si7021 in process 
+   bool readingSi7021 = false;
+
+   // read thread return status 
+   future<int> si7021ReadStatus;
 
    // main control loop, it follows this structure:
    //  - read inputs
-   //  - solve squencing logic
+   //  - solve sequencing logic
    //  - set outputs/write database record
    while(true) {
       
@@ -126,7 +152,7 @@ int main(int argc, char* argv[]) {
          switch(state) {
          case DoorState::Open:
 
-            result = udb.AddRow(GetSqlite3DateTime(), static_cast<int>(state), temperature);
+            result = udb.AddOneDoorStateRow(GetSqlite3DateTime(), static_cast<int>(state), temperature);
             if(result != 0){
                cout << "database write error: " << udb.GetErrorStr() << endl; 
                return 0;
@@ -142,7 +168,7 @@ int main(int argc, char* argv[]) {
             break;
          case DoorState::Closed:     
 
-            result = udb.AddRow(GetSqlite3DateTime(), static_cast<int>(state), temperature);
+            result = udb.AddOneDoorStateRow(GetSqlite3DateTime(), static_cast<int>(state), temperature);
             if(result != 0){
                cout << "database write error: " << udb.GetErrorStr() << endl; 
                return 0;
@@ -159,7 +185,7 @@ int main(int argc, char* argv[]) {
          case DoorState::MovingToOpen: 
          case DoorState::MovingToClose: 
  
-            result = udb.AddRow(GetSqlite3DateTime(), static_cast<int>(state), temperature);
+            result = udb.AddOneDoorStateRow(GetSqlite3DateTime(), static_cast<int>(state), temperature);
             if(result != 0){
                cout << "database write error: " << udb.GetErrorStr() << endl; 
                return 0;
@@ -181,7 +207,7 @@ int main(int argc, char* argv[]) {
             if(!pcl.GetSilentFlag()){
                cout << ".";
                cout.flush();
-            } // endif 
+            } // end if 
 
              break;
          default:
@@ -198,17 +224,75 @@ int main(int argc, char* argv[]) {
          return 0;
       } // end if 
 
-      // read temp every 10 seconds
-      if(readTemp >= (ac.loopTimeMS * 1000 * 10)){
+      // read PI temp every 10 seconds
+      readPiTempInterval += ac.loopTimeMS/1000.0f;
+      if(readPiTempInterval >= static_cast<float>(ac.loopTimeMS * 10)){
          
-         // ignore the error here since is worked prior to the while 
-         // and no error show occure 
+         // ignore the error here since it worked prior to the while 
+         // and no error occurred 
          ReadBoardTemperature(temperature);
-         readTemp = 0;
-      }
-      else {
-         readTemp += ac.loopTimeMS;
+         readPiTempInterval = 0.0f;
+
       } // end if  
+
+
+      // trigger the si7021 sensor read 
+      readSi7072Interval += ac.loopTimeMS/1000.0f;
+      if((readSi7072Interval >= static_cast<float>(ac.sensorReadPeriodSec)) && !readingSi7021) {
+         si7021ReadStatus = async(launch::async, readSensor, SI7021_READINGS::Both);
+         readSi7072Interval = 0.0f;
+         readingSi7021 = true;
+      } // end if 
+
+
+      // add this to prevent starting a new sensor read if previous 
+      // is still running
+      if(readingSi7021) {
+         int sensorReadResult = 0;
+
+         // use try/catch since status may not be valid 
+         // for all while-loop times
+         try {
+
+            // check if the thread is done (sensorReadStatus is a future)
+            if(si7021ReadStatus.wait_for(0ms) == future_status::ready){
+               sensorReadResult = si7021ReadStatus.get();
+
+               // display simple status that fits with the '.' progress of existing code
+               if(!pcl.GetSilentFlag()){
+
+                  // show status with S = success, F = failure
+                  if(sensorReadResult == 0) 
+                     cout << "S";
+                  else 
+                     cout << "F";
+
+               } // end if
+
+               // write the to the database
+               if(sensorReadResult == 0) {
+
+                  // write sensor data to db 
+                  sensorReadResult = udb.AddOneSensorDataRow(GetSqlite3DateTime(),  
+                                                             si7021Sensor.TempToString(false), 
+                                                             si7021Sensor.GetTemperatureUnits(false), 
+                                                             si7021Sensor.HumidityToString(),
+                                                             si7021Sensor.GetHumidityUnits());
+                  if(sensorReadResult == -1) {
+                     cout << udb.GetErrorStr() << endl;
+                  } // end if 
+
+               } // end if 
+
+               readingSi7021 = false;
+            } // end if 
+
+         }
+         catch(future_error &){
+            cout << "no valid future " << endl;
+         } // end try/catch
+
+      } // end if 
 
       this_thread::sleep_for(chrono::milliseconds(ac.loopTimeMS));
 

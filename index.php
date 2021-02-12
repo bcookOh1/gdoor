@@ -88,8 +88,19 @@
          }
          echo "</table>"; 
 
+         // get the temp and humidity from the i2c sensor
+         $result = $db->query('select * from readings order by id desc limit 1');
+         $row = $result->fetchArray();
+         $timestamp = $row['timestamp'];
+         $tempDegF = $row['temperature'];
+         $humidity = $row['humidity'];
+
          $db->exec('end');
          $db->close();
+
+         // make a display string from the temp and humidity data 
+         $tempHumid = sprintf("Timestamp: %s, Temperature: %s&degF, humidity: %s%%", $timestamp, $tempDegF, $humidity);
+         echo "<p class=\"current\"> $tempHumid";
 
       ?> 
    </body> 
