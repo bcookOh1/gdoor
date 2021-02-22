@@ -31,8 +31,7 @@
                   break;  
             }
          }
-      
-//         header("refresh: 1"); 
+     
 
          class GarageDB extends SQLite3 {
             function __construct() {
@@ -101,6 +100,13 @@
          // make a display string from the temp and humidity data 
          $tempHumid = sprintf("Timestamp: %s, Temperature: %s&degF, humidity: %s%%", $timestamp, $tempDegF, $humidity);
          echo "<p class=\"current\"> $tempHumid";
+         
+         // make the chart file
+         exec("./gnup");
+
+         $filename = "chart.png";
+         echo "<p class=\"current\"> the chart </p>";
+         echo "<img src='".$filename."' width='600'/>";        
 
       ?> 
    </body> 
