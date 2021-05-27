@@ -2,7 +2,8 @@
 /// author: Bennett Cook
 /// date: 07-05-2020
 /// description: a place to put common program definitions. 
-/// 
+/// update: 05-27-2021: add help light on time constants
+
 
 // header guard
 #ifndef COMMONDEF_H
@@ -50,6 +51,7 @@ const string CONFIG_DIGITAL_IO_PIN = "pin";
 const string CONFIG_DIGITAL_INPUT_RESISTOR_MODE = "resistor_mode";
 const string CONFIG_LOOP_TIME_MS = "GarageDoorPi.loop_time_ms";
 const string CONFIG_SENSOR_READ_PERIOD_SEC = "GarageDoorPi.sensor_read_period_sec";
+const string CONFIG_HELP_LIGHT_ON_TIME_SEC = "GarageDoorPi.help_light_on_time_sec";
 
 // string values for digital io type 
 const string DIGITAL_INPUT_STR = "input";
@@ -121,7 +123,7 @@ struct IoConfig {
 struct AppConfig  {
 
    // default constructor
-   AppConfig() { loopTimeMS = 0;}
+   AppConfig() { loopTimeMS = 0; sensorReadPeriodSec = 0; helpLightOnTimeSec = 0}
 
    // copy constructor
    AppConfig(const AppConfig &rhs) {
@@ -132,6 +134,7 @@ struct AppConfig  {
       dIos = rhs.dIos;
       loopTimeMS = rhs.loopTimeMS;
       sensorReadPeriodSec = rhs.sensorReadPeriodSec;
+      helpLightOnTimeSec = rhs.helpLightOnTimeSec;
    } // end ctor
 
    // assignment operator 
@@ -143,6 +146,7 @@ struct AppConfig  {
       dIos = rhs.dIos;
       loopTimeMS = rhs.loopTimeMS;
       sensorReadPeriodSec = rhs.sensorReadPeriodSec;
+      helpLightOnTimeSec = rhs.helpLightOnTimeSec;
       return *this;
    } // assignment operator
 
@@ -155,6 +159,7 @@ struct AppConfig  {
       dIos.clear();
       loopTimeMS = 0;
       sensorReadPeriodSec = 0;
+      helpLightOnTimeSec = 0;
    } // end Initialize
 
    string appName;               /// application name 
@@ -164,6 +169,7 @@ struct AppConfig  {
    vector<IoConfig> dIos;        /// a list of the digital io points 
    int loopTimeMS;               /// the program's read input loop time in ms
    int sensorReadPeriodSec;      /// the sensor read period in seconds 
+   int helpLightOnTimeSec;       /// help light on time in seconds  
 
 }; // end struct 
 
