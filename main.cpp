@@ -20,6 +20,7 @@
 #include "DigitalIO.h"
 #include "DoorSensor.h"
 #include "Si7021.h"
+#include "HelpLightReader.h"
 
 
 using namespace std; 
@@ -130,6 +131,9 @@ int main(int argc, char* argv[]) {
    // read thread return status 
    future<int> si7021ReadStatus;
 
+   // used for a 120vac light controled from a relay 
+   HelpLightReader hlr;
+
    // main control loop, it follows this structure:
    //  - read inputs
    //  - solve sequencing logic
@@ -214,6 +218,15 @@ int main(int argc, char* argv[]) {
 
             break;
          } // end switch
+
+         // add help light 
+         if(hlr.GetStatus() == ReaderStatus::NotStarted && 1 == ioValues["door_cycling"]){
+            hlr.ReadAfterSec(600);
+            ioValues["help_light"] = 1;
+         }
+         else if(hlr.GetStatus() == ReaderStatus::Complete){
+            ioValues["help_light"] = 0;
+         } // end if 
 
          // set the outputs 
          digitalIo.SetOutputs(ioValues);
