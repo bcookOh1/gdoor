@@ -1,6 +1,7 @@
 /// file: ReadConfigurationFile.cpp Implementation for ReadConfigurationFile class  
 /// author: Bennett Cook
 /// date: 07-08-2020
+/// update: 05-27-2021: add help light on time
 /// description: 
 
 #include "ReadConfigurationFile.h"
@@ -63,6 +64,7 @@ int ReadConfigurationFile::ReadIn() {
 
       _appConfig.loopTimeMS = GetScalarData<int>(tree, CONFIG_LOOP_TIME_MS);
       _appConfig.sensorReadPeriodSec = GetScalarData<int>(tree, CONFIG_SENSOR_READ_PERIOD_SEC);
+      _appConfig.helpLightOnTimeSec = GetScalarData<int>(tree, CONFIG_HELP_LIGHT_ON_TIME_SEC);
 
    }
    catch(std::exception &e) {

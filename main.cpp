@@ -313,6 +313,7 @@ int main(int argc, char* argv[]) {
 
    // turn off the moving led 
    ioValues["door_cycling"] = 0;
+   ioValues["help_light"] = 0;
    digitalIo.SetOutputs(ioValues);
 
    return 0;

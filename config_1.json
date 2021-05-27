@@ -19,9 +19,15 @@
          "type": "output",
          "name": "door_cycling", 
          "pin": 29
-       }
+       },
+       { 
+         "type": "output",
+         "name": "help_light", 
+         "pin": 26
+       } 
     ],
     "loop_time_ms": 500,
-    "sensor_read_period_sec": 300 
+    "sensor_read_period_sec": 300, 
+    "help_light_on_time_sec": 600 
   }
 }
