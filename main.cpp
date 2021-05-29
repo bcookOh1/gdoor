@@ -218,18 +218,6 @@ int main(int argc, char* argv[]) {
 
             break;
          } // end switch
-
-         // add help light 
-         if(hlr.GetStatus() == ReaderStatus::NotStarted && 1 == ioValues["door_cycling"]){
-            hlr.ReadAfterSec(600);
-            ioValues["help_light"] = 1;
-         }
-         else if(hlr.GetStatus() == ReaderStatus::Complete){
-            ioValues["help_light"] = 0;
-         } // end if 
-
-         // set the outputs 
-         digitalIo.SetOutputs(ioValues);
  
       }
       else {
@@ -307,11 +295,25 @@ int main(int argc, char* argv[]) {
 
       } // end if 
 
+
+         // add help light 
+         if(hlr.GetStatus() == ReaderStatus::NotStarted && 1 == ioValues["door_cycling"]){
+            hlr.ReadAfterSec(ac.helpLightOnTimeSec);
+            ioValues["help_light"] = 1;
+         }
+         else if(hlr.GetStatus() == ReaderStatus::Complete){
+            ioValues["help_light"] = 0;
+         } // end if 
+
+         // set the outputs 
+         digitalIo.SetOutputs(ioValues);
+
+
       this_thread::sleep_for(chrono::milliseconds(ac.loopTimeMS));
 
    } // end while 
 
-   // turn off the moving led 
+   // turn off the moving led and help light
    ioValues["door_cycling"] = 0;
    ioValues["help_light"] = 0;
    digitalIo.SetOutputs(ioValues);

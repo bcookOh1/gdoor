@@ -18,8 +18,8 @@ all: $(TARGET)
 debug: CC += -g
 debug: $(TARGET)
 
-$(TARGET): main.o UpdateDatabase.o ReadConfigurationFile.o DigitalIO.o DoorSensor.o ParseCommandLine.o Util.o ProcessCount.o Si7021.o I2C.o
-	$(CC) $(LFLAGS) -o $(TARGET)  main.o UpdateDatabase.o ReadConfigurationFile.o DigitalIO.o DoorSensor.o ParseCommandLine.o Util.o ProcessCount.o Si7021.o I2C.o
+$(TARGET): main.o UpdateDatabase.o ReadConfigurationFile.o DigitalIO.o DoorSensor.o ParseCommandLine.o Util.o ProcessCount.o Si7021.o I2C.o Reader.o HelpLightReader.o
+	$(CC) $(LFLAGS) -o $(TARGET)  main.o UpdateDatabase.o ReadConfigurationFile.o DigitalIO.o DoorSensor.o ParseCommandLine.o Util.o ProcessCount.o Si7021.o I2C.o Reader.o HelpLightReader.o
 
 main.o: main.cpp 
 	$(CC) $(CFLAGS) -c main.cpp 
@@ -51,6 +51,11 @@ Si7021.o: Si7021.cpp Si7021.h
 I2C.o: I2C.cpp I2C.h 
 	$(CC) $(CFLAGS) -c I2C.cpp
 
+Reader.o: Reader.cpp Reader.h  
+	$(CC) $(CFLAGS) -c Reader.cpp
+
+HelpLightReader.o: HelpLightReader.cpp HelpLightReader.h  
+	$(CC) $(CFLAGS) -c HelpLightReader.cpp
 
 clean:  
 	$(RM) $(TARGET) 

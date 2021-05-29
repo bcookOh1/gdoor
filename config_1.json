@@ -18,12 +18,12 @@
        { 
          "type": "output",
          "name": "door_cycling", 
-         "pin": 29
+         "pin": 27
        },
        { 
          "type": "output",
          "name": "help_light", 
-         "pin": 26
+         "pin": 25
        } 
     ],
     "loop_time_ms": 500,

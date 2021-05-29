@@ -123,7 +123,7 @@ struct IoConfig {
 struct AppConfig  {
 
    // default constructor
-   AppConfig() { loopTimeMS = 0; sensorReadPeriodSec = 0; helpLightOnTimeSec = 0}
+   AppConfig() { loopTimeMS = 0; sensorReadPeriodSec = 0; helpLightOnTimeSec = 0;}
 
    // copy constructor
    AppConfig(const AppConfig &rhs) {
