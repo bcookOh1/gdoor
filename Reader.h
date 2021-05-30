@@ -28,7 +28,8 @@ public:
    virtual ~Reader();
 
    string GetError() { return _errorStr; }
-   ReaderStatus GetStatus();
+   ReaderStatus GetStatus(){return _status;}
+   void ResetStatus() {_status = ReaderStatus::NotStarted; _errorStr.clear(); }
 
    virtual int ReadAsnyc() = 0;
    int ReadAfterSec(unsigned sec);
@@ -36,8 +37,9 @@ public:
 
 protected:
    void WaitThenRun(unsigned sec);
-   void SetStatus(ReaderStatus status, string errorStr); 
-
+   void SetStatus(ReaderStatus status, string errorStr);
+   void SetError(const string &errorStr);
+   
    string _errorStr;
    ReaderStatus _status;
 

@@ -13,7 +13,7 @@ HelpLightReader::~HelpLightReader() {
 int HelpLightReader::ReadAsnyc() {
    int ret = 0;
 
-   cout << "in HelpLightReader::ReadAsnyc() " << endl;
+   // cout << "in HelpLightReader::ReadAsnyc() " << endl;
 
    // required call to parent 
    Reader::SetStatus(ReaderStatus::Complete, "no error");

@@ -10,27 +10,16 @@ Reader::~Reader() {
 } // end dtor 
 
 
-ReaderStatus Reader::GetStatus() {
-
-   if(ReaderStatus::Complete == _status) {
-      _status = ReaderStatus::NotStarted;
-      return ReaderStatus::Complete;
-   }
-   else if(ReaderStatus::Error == _status) {
-      _status = ReaderStatus::NotStarted;
-      return ReaderStatus::Error;
-   }
-   else {
-      return _status;
-   } // end if 
-
-} // end GetStatus 
-
-
 void Reader::SetStatus(ReaderStatus status, string errorStr) {
    _status = status;
    _errorStr = errorStr;
 } // end SetStatus
+
+
+void Reader::SetError(const string &errorStr) {
+   _status = ReaderStatus::NotStarted; 
+   _errorStr = errorStr; 
+} // end SetError
 
 
 // ref: https://www.cplusplus.com/reference/thread/thread/detach/
@@ -48,6 +37,7 @@ int Reader::ReadAfterSec(unsigned sec) {
 
    return ret;
 } // end ReadAfterSec
+
 
 void Reader::WaitThenRun(unsigned sec) {
    unsigned count_down = sec;

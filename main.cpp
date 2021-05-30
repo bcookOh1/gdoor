@@ -218,7 +218,6 @@ int main(int argc, char* argv[]) {
 
             break;
          } // end switch
- 
       }
       else {
          cout << "door sensor error: " << ds.GetErrorStr() << endl; 
@@ -295,19 +294,18 @@ int main(int argc, char* argv[]) {
 
       } // end if 
 
+      // set help light on/off 
+      if(hlr.GetStatus() == ReaderStatus::NotStarted && 1 == ioValues["door_cycling"]){
+         hlr.ReadAfterSec(ac.helpLightOnTimeSec);
+         ioValues["help_light"] = 1;
+      }
+      else if(hlr.GetStatus() == ReaderStatus::Complete){
+         hlr.ResetStatus();
+         ioValues["help_light"] = 0;
+      } // end if 
 
-         // add help light 
-         if(hlr.GetStatus() == ReaderStatus::NotStarted && 1 == ioValues["door_cycling"]){
-            hlr.ReadAfterSec(ac.helpLightOnTimeSec);
-            ioValues["help_light"] = 1;
-         }
-         else if(hlr.GetStatus() == ReaderStatus::Complete){
-            ioValues["help_light"] = 0;
-         } // end if 
-
-         // set the outputs 
-         digitalIo.SetOutputs(ioValues);
-
+      // set the outputs 
+      digitalIo.SetOutputs(ioValues);
 
       this_thread::sleep_for(chrono::milliseconds(ac.loopTimeMS));
 
