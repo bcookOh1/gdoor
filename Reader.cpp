@@ -4,6 +4,7 @@
 Reader::Reader() {
    _status = ReaderStatus::NotStarted;
    _stopWait = false;
+   _restart = false;
 } // end ctor 
 
 Reader::~Reader() {
@@ -23,6 +24,8 @@ void Reader::SetError(const string &errorStr) {
 
 
 // ref: https://www.cplusplus.com/reference/thread/thread/detach/
+/// \ret return 0 wait started 
+/// \ret return -1 can not start while in waiting
 int Reader::ReadAfterSec(unsigned sec) {
    int ret = 0;
 
@@ -40,10 +43,15 @@ int Reader::ReadAfterSec(unsigned sec) {
 
 
 void Reader::WaitThenRun(unsigned sec) {
-   unsigned count_down = sec;
+   unsigned countDown = sec;
 
    // count down for 1 second then run ReadAsnyc()
-   while(count_down--) {
+   while(countDown--) {
+
+      if(_restart == true) {
+         _restart = false;
+         countDown = sec;
+      } // end if 
 
       // _stopWait is set from StopWaiting() is true set to false and return 
       // without running ReadAsnyc()

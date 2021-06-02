@@ -1,7 +1,8 @@
 // file: main.cpp
 // date: 08/20/2020 
 // description: entry point for the gdoor raspberry pi zero application. 
-//  
+// update: 5/30/2021, add Help Light
+// update: 5/31/2021, add PiTempReader
 
 
 #include <iostream>
@@ -21,6 +22,7 @@
 #include "DoorSensor.h"
 #include "Si7021.h"
 #include "HelpLightReader.h"
+// #include "PiTempReader.h"
 
 
 using namespace std; 
@@ -133,6 +135,7 @@ int main(int argc, char* argv[]) {
 
    // used for a 120vac light controled from a relay 
    HelpLightReader hlr;
+   OneShot<unsigned> dcOs{0}; // door_cycling oneshot, used to set help light
 
    // main control loop, it follows this structure:
    //  - read inputs
@@ -295,9 +298,13 @@ int main(int argc, char* argv[]) {
       } // end if 
 
       // set help light on/off 
-      if(hlr.GetStatus() == ReaderStatus::NotStarted && 1 == ioValues["door_cycling"]){
+      bool doorCyclingChanged = dcOs.Changed(ioValues["door_cycling"]);
+      if(hlr.GetStatus() == ReaderStatus::NotStarted && doorCyclingChanged){
          hlr.ReadAfterSec(ac.helpLightOnTimeSec);
          ioValues["help_light"] = 1;
+      }
+      else if(hlr.GetStatus() == ReaderStatus::Waiting && doorCyclingChanged){
+         hlr.RestartWait();
       }
       else if(hlr.GetStatus() == ReaderStatus::Complete){
          hlr.ResetStatus();

@@ -34,6 +34,7 @@ public:
    virtual int ReadAsnyc() = 0;
    int ReadAfterSec(unsigned sec);
    void StopWaiting() { if(ReaderStatus::Waiting == _status) _stopWait = true; }
+   void RestartWait() { if(ReaderStatus::Waiting == _status) _restart = true; }
 
 protected:
    void WaitThenRun(unsigned sec);
@@ -45,6 +46,7 @@ protected:
 
 private:
    boost::atomic<bool> _stopWait;
+   boost::atomic<bool> _restart;
 
 }; // end class 
 

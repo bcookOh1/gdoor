@@ -1,7 +1,7 @@
 
 // header guard
 #ifndef HELPLIGHTREADER_H
-#define PITEMPREADER_H
+#define HELPLIGHTREADER_H
 
 #include <iostream>
 #include <iomanip>
