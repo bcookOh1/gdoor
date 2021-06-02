@@ -45,16 +45,18 @@ int Reader::ReadAfterSec(unsigned sec) {
 void Reader::WaitThenRun(unsigned sec) {
    unsigned countDown = sec;
 
-   // count down for 1 second then run ReadAsnyc()
+   // count down for 1 second then run RunTask()
+   // if sec = 0 the while loop will not run but after countDown will be max unsigned
    while(countDown--) {
 
+      // allow client to trigger a countdown restart 
       if(_restart == true) {
          _restart = false;
          countDown = sec;
       } // end if 
 
       // _stopWait is set from StopWaiting() is true set to false and return 
-      // without running ReadAsnyc()
+      // without running RunTask()
       if(_stopWait == true) {
          _stopWait = false;
 
@@ -65,7 +67,7 @@ void Reader::WaitThenRun(unsigned sec) {
       this_thread::sleep_for(chrono::seconds(1));
    } // end while
    
-   ReadAsnyc();
+   RunTask();
 } // end WaitThenRun
 
 

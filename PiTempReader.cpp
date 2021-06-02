@@ -10,7 +10,7 @@ PiTempReader::~PiTempReader() {
 
 } // end dtor 
 
-int PiTempReader::ReadAsnyc() {
+int PiTempReader::RunTask() {
    int ret = 0;
 
       // read the temp once at the start so the temperature var is valid

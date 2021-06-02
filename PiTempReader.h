@@ -18,7 +18,7 @@ public:
    PiTempReader();
    virtual ~PiTempReader();
 
-   int ReadAsnyc() override;
+   int RunTask() override;
    string GetData();
 
 

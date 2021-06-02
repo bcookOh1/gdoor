@@ -10,10 +10,10 @@ HelpLightReader::~HelpLightReader() {
 } // end dtor 
 
 
-int HelpLightReader::ReadAsnyc() {
+int HelpLightReader::RunTask() {
    int ret = 0;
 
-   // cout << "in HelpLightReader::ReadAsnyc() " << endl;
+   // cout << "in HelpLightReader::RunTask() " << endl;
 
    // required call to parent 
    Reader::SetStatus(ReaderStatus::Complete, "no error");

@@ -31,7 +31,7 @@ public:
    ReaderStatus GetStatus(){return _status;}
    void ResetStatus() {_status = ReaderStatus::NotStarted; _errorStr.clear(); }
 
-   virtual int ReadAsnyc() = 0;
+   virtual int RunTask() = 0;
    int ReadAfterSec(unsigned sec);
    void StopWaiting() { if(ReaderStatus::Waiting == _status) _stopWait = true; }
    void RestartWait() { if(ReaderStatus::Waiting == _status) _restart = true; }

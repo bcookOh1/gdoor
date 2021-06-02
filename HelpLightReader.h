@@ -17,7 +17,7 @@ public:
    HelpLightReader();
    virtual ~HelpLightReader();
 
-   int ReadAsnyc() override;
+   int RunTask() override;
 
 private:
 

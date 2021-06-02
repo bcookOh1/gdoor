@@ -119,7 +119,7 @@ int main(int argc, char* argv[]) {
 
    // read the temp once at the start so the temperature var is valid
    string temperature;
-   result = pitr.ReadAsnyc();
+   result = pitr.RunTask();
    if(result != 0){
       cout << pitr.GetError() << endl;
       return 0;
@@ -240,7 +240,7 @@ int main(int argc, char* argv[]) {
          temperature = pitr.GetData();
          pitr.ResetStatus();
       }
-      else if(pitr.GetStatus() == ReaderStatus::Complete)
+      else if(pitr.GetStatus() == ReaderStatus::Error)
          cout << pitr.GetError() << endl;
          pitr.ResetStatus();
       } // end if 
