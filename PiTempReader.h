@@ -8,6 +8,7 @@
 #include <string>
 
 #include "Reader.h"
+#include "Util.h"
 
 using namespace std;
 
@@ -22,6 +23,8 @@ public:
 
 
 private:
+
+   string _temperature;
 
 
 }; // end class

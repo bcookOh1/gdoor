@@ -22,7 +22,7 @@
 #include "DoorSensor.h"
 #include "Si7021.h"
 #include "HelpLightReader.h"
-// #include "PiTempReader.h"
+#include "PiTempReader.h"
 
 
 using namespace std; 
@@ -114,17 +114,22 @@ int main(int argc, char* argv[]) {
       return result;
    }; // end lambda
 
+   PiTempReader pitr;
+
+
    // read the temp once at the start so the temperature var is valid
    string temperature;
-   result = ReadBoardTemperature(temperature);
+   result = pitr.ReadAsnyc();
    if(result != 0){
-      cout << "board temperature read failed " << endl;
+      cout << pitr.GetError() << endl;
       return 0;
+   }
+   else {
+      temperature = pitr.GetData();
    } // end if 
+   
 
-   // used to limit the number of times the pi temp and
-   // Si7021 sensors 
-   float readPiTempInterval = 0.0f; 
+   // used to limit the number of times the Si7021 sensor is read 
    float readSi7072Interval = 0.0f; 
 
    // flag when read Si7021 in process 
@@ -227,7 +232,19 @@ int main(int argc, char* argv[]) {
          return 0;
       } // end if 
 
-      // read PI temp every 10 seconds
+      // read PI temp every n seconds
+      if(pitr.GetStatus() == ReaderStatus::NotStarted){
+         pitr.ReadAfterSec(ac.piTempReadPeriodSec);
+      }
+      else if(pitr.GetStatus() == ReaderStatus::Complete){
+         temperature = pitr.GetData();
+         pitr.ResetStatus();
+      }
+      else if(pitr.GetStatus() == ReaderStatus::Complete)
+         cout << pitr.GetError() << endl;
+         pitr.ResetStatus();
+      } // end if 
+
       readPiTempInterval += ac.loopTimeMS/1000.0f;
       if(readPiTempInterval >= static_cast<float>(ac.loopTimeMS * 10)){
          

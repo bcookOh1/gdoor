@@ -27,6 +27,7 @@
        } 
     ],
     "loop_time_ms": 500,
+    "pi_temp_read_period_sec": 10, 
     "sensor_read_period_sec": 300, 
     "help_light_on_time_sec": 600 
   }

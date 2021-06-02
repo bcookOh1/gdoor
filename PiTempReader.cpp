@@ -13,18 +13,26 @@ PiTempReader::~PiTempReader() {
 int PiTempReader::ReadAsnyc() {
    int ret = 0;
 
-   // cout << "in PiTempReader::ReadAsnyc() " << endl;
+      // read the temp once at the start so the temperature var is valid
+   int result = ReadBoardTemperature(_temperature);
+   if(result != 0){
 
-   // required call to parent 
-   Reader::SetStatus(ReaderStatus::Complete, "no error");
+      // required call to parent 
+      Reader::SetStatus(ReaderStatus::Error, "board temperature read failed ");
+      ret = -1;
+   }
+   else {
+
+      // required call to parent 
+      Reader::SetStatus(ReaderStatus::Complete, "no error");
+   
+   } // end if 
 
    return ret;
 } // end ReadAsnyc
 
 string PiTempReader::GetData() {
-   string ret;
-
-   return ret;
+   return _temperature;
 } // end GetData
 
 
