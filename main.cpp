@@ -240,20 +240,10 @@ int main(int argc, char* argv[]) {
          temperature = pitr.GetData();
          pitr.ResetStatus();
       }
-      else if(pitr.GetStatus() == ReaderStatus::Error)
+      else if(pitr.GetStatus() == ReaderStatus::Error) {
          cout << pitr.GetError() << endl;
          pitr.ResetStatus();
       } // end if 
-
-      readPiTempInterval += ac.loopTimeMS/1000.0f;
-      if(readPiTempInterval >= static_cast<float>(ac.loopTimeMS * 10)){
-         
-         // ignore the error here since it worked prior to the while 
-         // and no error occurred 
-         ReadBoardTemperature(temperature);
-         readPiTempInterval = 0.0f;
-
-      } // end if  
 
 
       // trigger the si7021 sensor read 
