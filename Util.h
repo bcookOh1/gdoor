@@ -33,7 +33,18 @@ string GetSqlite3DateTime();
 // 
 IoValues MakeIoValuesMap(const vector<IoConfig> &io);
 void PrintIo(const IoValues &ioValues);
+string IoToString(const IoValues &ioValues);
 int ReadBoardTemperature(string &temperature);
+
+// conditional print  with optional newline
+// used with command line SilentFlag 
+// use string str param instead of const string & to accept literal strings  
+inline void CondPrint(string str, bool cond, bool newline = false) {
+   if(cond){
+      cout << str << (newline ? '\n' : ' ');
+      cout.flush();
+   } // end if 
+} // end CondPrint
 
 
 // for use in a loop to detect when a var makes a 

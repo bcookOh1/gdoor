@@ -49,7 +49,7 @@ void Reader::WaitThenRun(unsigned sec) {
    // if sec = 0 the while loop will not run but after countDown will be max unsigned
    while(countDown--) {
 
-      // allow client to trigger a countdown restart 
+      // allow client to trigger a countdown rest34art 
       if(_restart == true) {
          _restart = false;
          countDown = sec;

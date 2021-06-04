@@ -18,8 +18,8 @@ all: $(TARGET)
 debug: CC += -g
 debug: $(TARGET)
 
-$(TARGET): main.o UpdateDatabase.o ReadConfigurationFile.o DigitalIO.o DoorSensor.o ParseCommandLine.o Util.o ProcessCount.o Si7021.o I2C.o Reader.o HelpLightReader.o PiTempReader.o
-	$(CC) $(LFLAGS) -o $(TARGET)  main.o UpdateDatabase.o ReadConfigurationFile.o DigitalIO.o DoorSensor.o ParseCommandLine.o Util.o ProcessCount.o Si7021.o I2C.o Reader.o HelpLightReader.o PiTempReader.o
+$(TARGET): main.o UpdateDatabase.o ReadConfigurationFile.o DigitalIO.o DoorSensor.o ParseCommandLine.o Util.o ProcessCount.o Si7021.o I2C.o Reader.o HelpLightReader.o PiTempReader.o Si7021Reader.o
+	$(CC) $(LFLAGS) -o $(TARGET)  main.o UpdateDatabase.o ReadConfigurationFile.o DigitalIO.o DoorSensor.o ParseCommandLine.o Util.o ProcessCount.o Si7021.o I2C.o Reader.o HelpLightReader.o PiTempReader.o Si7021Reader.o
 
 main.o: main.cpp 
 	$(CC) $(CFLAGS) -c main.cpp 
@@ -59,6 +59,10 @@ HelpLightReader.o: HelpLightReader.cpp HelpLightReader.h
 
 PiTempReader.o: PiTempReader.cpp PiTempReader.h  
 	$(CC) $(CFLAGS) -c PiTempReader.cpp
+
+Si7021Reader.o: Si7021Reader.cpp Si7021Reader.h  
+	$(CC) $(CFLAGS) -c Si7021Reader.cpp
+
 
 clean:  
 	$(RM) $(TARGET) 

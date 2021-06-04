@@ -50,8 +50,8 @@ const string CONFIG_DIGITAL_IO_NAME = "name";
 const string CONFIG_DIGITAL_IO_PIN = "pin";
 const string CONFIG_DIGITAL_INPUT_RESISTOR_MODE = "resistor_mode";
 const string CONFIG_LOOP_TIME_MS = "GarageDoorPi.loop_time_ms";
-const string CONFIG_PI_TEMP_READ_PERIOD_SEC = "GarageDoorPi.pi_temp_read_period_sec";
-const string CONFIG_SENSOR_READ_PERIOD_SEC = "GarageDoorPi.sensor_read_period_sec";
+const string CONFIG_PI_TEMP_READ_INTERVAL_SEC = "GarageDoorPi.pi_temp_read_interval_sec";
+const string CONFIG_SENSOR_READ_INTERVAL_SEC = "GarageDoorPi.sensor_read_interval_sec";
 const string CONFIG_HELP_LIGHT_ON_TIME_SEC = "GarageDoorPi.help_light_on_time_sec";
 
 // string values for digital io type 
@@ -125,9 +125,9 @@ struct AppConfig  {
 
    // default constructor
    AppConfig() { loopTimeMS = 0; 
-                 sensorReadPeriodSec = 0; 
+                 sensorReadIntervalSec = 0; 
                  helpLightOnTimeSec = 0;
-                 piTempReadPeriodSec = 0;
+                 piTempReadIntervalSec = 0;
    } // end ctor 
 
    // copy constructor
@@ -138,8 +138,8 @@ struct AppConfig  {
       dbSensorTable = rhs.dbSensorTable;
       dIos = rhs.dIos;
       loopTimeMS = rhs.loopTimeMS;
-      piTempReadPeriodSec = rhs.piTempReadPeriodSec;
-      sensorReadPeriodSec = rhs.sensorReadPeriodSec;
+      piTempReadIntervalSec = rhs.piTempReadIntervalSec;
+      sensorReadIntervalSec = rhs.sensorReadIntervalSec;
       helpLightOnTimeSec = rhs.helpLightOnTimeSec;
    } // end ctor
 
@@ -151,8 +151,8 @@ struct AppConfig  {
       dbSensorTable = rhs.dbSensorTable;
       dIos = rhs.dIos;
       loopTimeMS = rhs.loopTimeMS;
-      piTempReadPeriodSec = rhs.piTempReadPeriodSec;
-      sensorReadPeriodSec = rhs.sensorReadPeriodSec;
+      piTempReadIntervalSec = rhs.piTempReadIntervalSec;
+      sensorReadIntervalSec = rhs.sensorReadIntervalSec;
       helpLightOnTimeSec = rhs.helpLightOnTimeSec;
       return *this;
    } // assignment operator
@@ -165,8 +165,8 @@ struct AppConfig  {
       dbSensorTable = "";
       dIos.clear();
       loopTimeMS = 0;
-      piTempReadPeriodSec = 0;
-      sensorReadPeriodSec = 0;
+      piTempReadIntervalSec = 0;
+      sensorReadIntervalSec = 0;
       helpLightOnTimeSec = 0;
    } // end Initialize
 
@@ -176,8 +176,8 @@ struct AppConfig  {
    string dbSensorTable;         /// name of the sensor reading table 
    vector<IoConfig> dIos;        /// a list of the digital io points 
    int loopTimeMS;               /// the program's read input loop time in ms
-   int piTempReadPeriodSec;      /// the PI temperature read period in seconds 
-   int sensorReadPeriodSec;      /// the sensor read period in seconds 
+   int piTempReadIntervalSec;    /// the PI temperature read period in seconds 
+   int sensorReadIntervalSec;    /// the sensor read interval in seconds 
    int helpLightOnTimeSec;       /// help light on time in seconds  
 
 }; // end struct 

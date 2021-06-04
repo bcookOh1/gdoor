@@ -63,7 +63,8 @@ int ReadConfigurationFile::ReadIn() {
       } // end for 
 
       _appConfig.loopTimeMS = GetScalarData<int>(tree, CONFIG_LOOP_TIME_MS);
-      _appConfig.sensorReadPeriodSec = GetScalarData<int>(tree, CONFIG_SENSOR_READ_PERIOD_SEC);
+      _appConfig.piTempReadIntervalSec = GetScalarData<int>(tree, CONFIG_PI_TEMP_READ_INTERVAL_SEC);
+      _appConfig.sensorReadIntervalSec = GetScalarData<int>(tree, CONFIG_SENSOR_READ_INTERVAL_SEC);
       _appConfig.helpLightOnTimeSec = GetScalarData<int>(tree, CONFIG_HELP_LIGHT_ON_TIME_SEC);
 
    }

@@ -20,9 +20,9 @@
 #include "UpdateDatabase.h"
 #include "DigitalIO.h"
 #include "DoorSensor.h"
-#include "Si7021.h"
 #include "HelpLightReader.h"
 #include "PiTempReader.h"
+#include "Si7021Reader.h"
 
 
 using namespace std; 
@@ -99,23 +99,12 @@ int main(int argc, char* argv[]) {
    IoValues ioValues = MakeIoValuesMap(ac.dIos);
    DoorSensor ds; 
 
-   // define a sensor to read temp and humid through i2c 
-   Si7021 si7021Sensor;
-
-   // lambda to read sensor as callable object in a thread
-   // use local sensor object reference  
-   auto readSensor = [&si7021Sensor](SI7021_READINGS reading) ->int {
-
-      int result = si7021Sensor.ReadSensor(reading);
-      if(result != 0) {
-         cout << si7021Sensor.GetErrorStr() << endl;
-      } // end if 
-
-      return result;
-   }; // end lambda
+   // used for a 120vac light controled from a relay 
+   HelpLightReader hlr;
+   OneShot<unsigned> dcOs{0}; // door_cycling oneshot, used to set help light
 
    PiTempReader pitr;
-
+   Si7021Reader si7021r;
 
    // read the temp once at the start so the temperature var is valid
    string temperature;
@@ -128,19 +117,6 @@ int main(int argc, char* argv[]) {
       temperature = pitr.GetData();
    } // end if 
    
-
-   // used to limit the number of times the Si7021 sensor is read 
-   float readSi7072Interval = 0.0f; 
-
-   // flag when read Si7021 in process 
-   bool readingSi7021 = false;
-
-   // read thread return status 
-   future<int> si7021ReadStatus;
-
-   // used for a 120vac light controled from a relay 
-   HelpLightReader hlr;
-   OneShot<unsigned> dcOs{0}; // door_cycling oneshot, used to set help light
 
    // main control loop, it follows this structure:
    //  - read inputs
@@ -172,13 +148,11 @@ int main(int argc, char* argv[]) {
 
             ioValues["door_cycling"] = 0;
 
-            if(!pcl.GetSilentFlag()){
-               PrintIo(ioValues);
-               cout << "open" << endl;
-            } // end if 
+               CondPrint(IoToString(ioValues), !pcl.GetSilentFlag(), true);
+               CondPrint("open", !pcl.GetSilentFlag(), true);
 
             break;
-         case DoorState::Closed:     
+         case DoorState::Closed:
 
             result = udb.AddOneDoorStateRow(GetSqlite3DateTime(), static_cast<int>(state), temperature);
             if(result != 0){
@@ -188,10 +162,8 @@ int main(int argc, char* argv[]) {
 
             ioValues["door_cycling"] = 0;
 
-            if(!pcl.GetSilentFlag()){
-               PrintIo(ioValues);
-               cout << "closed" << endl;
-            } // end if 
+               CondPrint(IoToString(ioValues), !pcl.GetSilentFlag(), true);
+               CondPrint("closed", !pcl.GetSilentFlag(), true);
 
             break;
          case DoorState::MovingToOpen: 
@@ -205,23 +177,15 @@ int main(int argc, char* argv[]) {
 
             ioValues["door_cycling"] = 1;
 
-            if(!pcl.GetSilentFlag()){
-               PrintIo(ioValues);
-               if(state == DoorState::MovingToOpen)
-                  cout << "moving to open" << endl;
-               else 
-                  cout << "moving to close" << endl;
-            } // end if 
+               CondPrint(IoToString(ioValues), !pcl.GetSilentFlag(), true);
+               CondPrint(state == DoorState::MovingToOpen ? "moving to open" : "moving to close", !pcl.GetSilentFlag(), true);
          
             break;
-         case DoorState::NoChange:   
+         case DoorState::NoChange:
          
-            if(!pcl.GetSilentFlag()){
-               cout << ".";
-               cout.flush();
-            } // end if 
+            CondPrint(".", !pcl.GetSilentFlag());
 
-             break;
+            break;
          default:
 
             break;
@@ -232,9 +196,10 @@ int main(int argc, char* argv[]) {
          return 0;
       } // end if 
 
+
       // read PI temp every n seconds
       if(pitr.GetStatus() == ReaderStatus::NotStarted){
-         pitr.ReadAfterSec(ac.piTempReadPeriodSec);
+         pitr.ReadAfterSec(ac.piTempReadIntervalSec);
       }
       else if(pitr.GetStatus() == ReaderStatus::Complete){
          temperature = pitr.GetData();
@@ -246,63 +211,30 @@ int main(int argc, char* argv[]) {
       } // end if 
 
 
-      // trigger the si7021 sensor read 
-      readSi7072Interval += ac.loopTimeMS/1000.0f;
-      if((readSi7072Interval >= static_cast<float>(ac.sensorReadPeriodSec)) && !readingSi7021) {
-         si7021ReadStatus = async(launch::async, readSensor, SI7021_READINGS::Both);
-         readSi7072Interval = 0.0f;
-         readingSi7021 = true;
+      // read Si7021 temp and humidity every n seconds
+      if(si7021r.GetStatus() == ReaderStatus::NotStarted){
+         si7021r.ReadAfterSec(ac.sensorReadIntervalSec);
+      }
+      else if(si7021r.GetStatus() == ReaderStatus::Complete){
+         Si7021Data data = si7021r.GetData();
+         si7021r.ResetStatus();
+
+         // write sensor data to db 
+         int sensorReadResult = udb.AddOneSensorDataRow(GetSqlite3DateTime(),  
+                                                        data.temperature,
+                                                        data.TemperatureUnits,
+                                                        data.humidity,
+                                                        data.humidityUnits); 
+         if(sensorReadResult == -1) {
+            cout << udb.GetErrorStr() << endl;
+         } // end if 
+
+      }
+      else if(si7021r.GetStatus() == ReaderStatus::Error) {
+         cout << si7021r.GetError() << endl;
+         si7021r.ResetStatus();
       } // end if 
 
-
-      // add this to prevent starting a new sensor read if previous 
-      // is still running
-      if(readingSi7021) {
-         int sensorReadResult = 0;
-
-         // use try/catch since status may not be valid 
-         // for all while-loop times
-         try {
-
-            // check if the thread is done (sensorReadStatus is a future)
-            if(si7021ReadStatus.wait_for(0ms) == future_status::ready){
-               sensorReadResult = si7021ReadStatus.get();
-
-               // display simple status that fits with the '.' progress of existing code
-               if(!pcl.GetSilentFlag()){
-
-                  // show status with S = success, F = failure
-                  if(sensorReadResult == 0) 
-                     cout << "S";
-                  else 
-                     cout << "F";
-
-               } // end if
-
-               // write the to the database
-               if(sensorReadResult == 0) {
-
-                  // write sensor data to db 
-                  sensorReadResult = udb.AddOneSensorDataRow(GetSqlite3DateTime(),  
-                                                             si7021Sensor.TempToString(false), 
-                                                             si7021Sensor.GetTemperatureUnits(false), 
-                                                             si7021Sensor.HumidityToString(),
-                                                             si7021Sensor.GetHumidityUnits());
-                  if(sensorReadResult == -1) {
-                     cout << udb.GetErrorStr() << endl;
-                  } // end if 
-
-               } // end if 
-
-               readingSi7021 = false;
-            } // end if 
-
-         }
-         catch(future_error &){
-            cout << "no valid future " << endl;
-         } // end try/catch
-
-      } // end if 
 
       // set help light on/off 
       bool doorCyclingChanged = dcOs.Changed(ioValues["door_cycling"]);

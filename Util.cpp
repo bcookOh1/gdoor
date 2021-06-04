@@ -54,6 +54,22 @@ void PrintIo(const IoValues &ioValues){
 
 } // end PrintIo
 
+string IoToString(const IoValues &ioValues){
+
+   ostringstream oss;
+
+   // title and column header
+   oss << "\nIO Values\n";
+   oss << "name,value\n";
+
+   // print data 
+   for(auto iter = ioValues.begin(); iter != ioValues.end(); ++iter) {
+      oss << iter->first << ", " << iter->second << "\n";
+   } // end for 
+
+   return oss.str();
+} // end IoToString
+
  
 int ReadBoardTemperature(string &temperature){
    temperature = "";
