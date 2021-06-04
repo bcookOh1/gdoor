@@ -34,6 +34,15 @@ enum class InputResistorMode {
    PullUp
 }; 
 
+enum class DoorState : int {
+   Startup = 0,
+   Open,
+   MovingToClose,
+   Closed,
+   MovingToOpen,
+   NoChange
+}; // end enum 
+
 
 // alias for setting or reading io values 
 //                  name,    value  

@@ -19,7 +19,7 @@
 #include "ReadConfigurationFile.h"
 #include "UpdateDatabase.h"
 #include "DigitalIO.h"
-#include "DoorSensor.h"
+#include "StateMachine.hpp"
 #include "HelpLightReader.h"
 #include "PiTempReader.h"
 #include "Si7021Reader.h"
@@ -27,6 +27,8 @@
 
 using namespace std; 
 namespace filesys = boost::filesystem;
+namespace sml = boost::sml;
+using Gdsm = sm_garage_door;
 
 
 // entry point for the program
@@ -97,7 +99,6 @@ int main(int argc, char* argv[]) {
 
    // setup empty IoValue map used for algo data 
    IoValues ioValues = MakeIoValuesMap(ac.dIos);
-   DoorSensor ds; 
 
    // used for a 120vac light controled from a relay 
    HelpLightReader hlr;
@@ -117,6 +118,12 @@ int main(int argc, char* argv[]) {
       temperature = pitr.GetData();
    } // end if 
    
+   // make the state machine passing in dio
+   Gdsm gdsm(ioValues, udb, temperature);
+   sml::sm<Gdsm> sm(gdsm);
+
+   // move off Idle states
+   sm.process_event(eGdInit{});
 
    // main control loop, it follows this structure:
    //  - read inputs
@@ -131,71 +138,9 @@ int main(int argc, char* argv[]) {
         return 0;
       } // end if 
 
-      // solve the logic 
-      result = ds.Process(ioValues);
-      if(result == 0) {
-
-         // set the result 
-         DoorState state = ds.GetState();
-         switch(state) {
-         case DoorState::Open:
-
-            result = udb.AddOneDoorStateRow(GetSqlite3DateTime(), static_cast<int>(state), temperature);
-            if(result != 0){
-               cout << "database write error: " << udb.GetErrorStr() << endl; 
-               return 0;
-            } // end if 
-
-            ioValues["door_cycling"] = 0;
-
-               CondPrint(IoToString(ioValues), !pcl.GetSilentFlag(), true);
-               CondPrint("open", !pcl.GetSilentFlag(), true);
-
-            break;
-         case DoorState::Closed:
-
-            result = udb.AddOneDoorStateRow(GetSqlite3DateTime(), static_cast<int>(state), temperature);
-            if(result != 0){
-               cout << "database write error: " << udb.GetErrorStr() << endl; 
-               return 0;
-            } // end if 
-
-            ioValues["door_cycling"] = 0;
-
-               CondPrint(IoToString(ioValues), !pcl.GetSilentFlag(), true);
-               CondPrint("closed", !pcl.GetSilentFlag(), true);
-
-            break;
-         case DoorState::MovingToOpen: 
-         case DoorState::MovingToClose: 
- 
-            result = udb.AddOneDoorStateRow(GetSqlite3DateTime(), static_cast<int>(state), temperature);
-            if(result != 0){
-               cout << "database write error: " << udb.GetErrorStr() << endl; 
-               return 0;
-            } // end if 
-
-            ioValues["door_cycling"] = 1;
-
-               CondPrint(IoToString(ioValues), !pcl.GetSilentFlag(), true);
-               CondPrint(state == DoorState::MovingToOpen ? "moving to open" : "moving to close", !pcl.GetSilentFlag(), true);
-         
-            break;
-         case DoorState::NoChange:
-         
-            CondPrint(".", !pcl.GetSilentFlag());
-
-            break;
-         default:
-
-            break;
-         } // end switch
-      }
-      else {
-         cout << "door sensor error: " << ds.GetErrorStr() << endl; 
-         return 0;
-      } // end if 
-
+      // send the only event eOnTime
+      // same event each loop, the state and guards make up the transition 
+      sm.process_event(eOnTime{});
 
       // read PI temp every n seconds
       if(pitr.GetStatus() == ReaderStatus::NotStarted){

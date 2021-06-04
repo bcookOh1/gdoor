@@ -22,6 +22,7 @@
 #include <type_traits>
 
 #include "CommonDef.h"
+#include "UpdateDatabase.h"
 
 
 using namespace std;
@@ -35,6 +36,7 @@ IoValues MakeIoValuesMap(const vector<IoConfig> &io);
 void PrintIo(const IoValues &ioValues);
 string IoToString(const IoValues &ioValues);
 int ReadBoardTemperature(string &temperature);
+void UpdateDoorStateDB(DoorState ds, UpdateDatabase &udb, string temperature);
 
 // conditional print  with optional newline
 // used with command line SilentFlag 
