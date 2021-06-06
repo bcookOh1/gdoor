@@ -125,6 +125,9 @@ int main(int argc, char* argv[]) {
    // move off Idle states
    sm.process_event(eGdInit{});
 
+   // make sure off at start up
+   ioValues["help_light"] = 0;
+
    // main control loop, it follows this structure:
    //  - read inputs
    //  - solve sequencing logic
@@ -139,7 +142,7 @@ int main(int argc, char* argv[]) {
       } // end if 
 
       // send the only event eOnTime
-      // same event each loop, the state and guards make up the transition 
+      // same event each loop, the state and guards make up the transitions 
       sm.process_event(eOnTime{});
 
       // read PI temp every n seconds
