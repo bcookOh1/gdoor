@@ -101,7 +101,7 @@ public:
 
       return make_transition_table(
 
-         /* garage door sequencing */
+         // garage door sequencing 
          *state<Idle1> + event<eGdInit> / SetMovingLedOff = state<Startup>,
 
           state<Startup> + event<eOnTime>[(IsUp && !IsDown)] / [] {} = state<Open>,
@@ -127,11 +127,13 @@ public:
 
 private:
 
-   // digital io data member 
+   // ref to digital io  
    IoValues &_ioValues;
+
+   // ref 
    UpdateDatabase &_udb;
 
-   // pi temperature 
+   // ref to pi temperature 
    string &_temperature;
 
 }; // end struct

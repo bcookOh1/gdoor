@@ -100,9 +100,17 @@ int main(int argc, char* argv[]) {
    // setup empty IoValue map used for algo data 
    IoValues ioValues = MakeIoValuesMap(ac.dIos);
 
-   // used for a 120vac light controled from a relay 
+   // make sure outputs are off at start up
+   ioValues["door_cycling"] = 0;
+   ioValues["help_light"] = 0;
+   digitalIo.SetOutputs(ioValues);
+
+   // used for a 120vac light controlled from a relay 
    HelpLightReader hlr;
-   OneShot<unsigned> dcOs{0}; // door_cycling oneshot, used to set help light
+
+   // door_cycling oneshot, used to set help light,
+   // used in the while loop, true on-change for one loop
+   OneShot<unsigned> dcOs{0}; 
 
    PiTempReader pitr;
    Si7021Reader si7021r;
@@ -118,15 +126,12 @@ int main(int argc, char* argv[]) {
       temperature = pitr.GetData();
    } // end if 
    
-   // make the state machine passing in dio
+   // make the state machine passing in dio, update database and pi temp
    Gdsm gdsm(ioValues, udb, temperature);
    sml::sm<Gdsm> sm(gdsm);
 
    // move off Idle states
    sm.process_event(eGdInit{});
-
-   // make sure off at start up
-   ioValues["help_light"] = 0;
 
    // main control loop, it follows this structure:
    //  - read inputs
@@ -144,6 +149,7 @@ int main(int argc, char* argv[]) {
       // send the only event eOnTime
       // same event each loop, the state and guards make up the transitions 
       sm.process_event(eOnTime{});
+
 
       // read PI temp every n seconds
       if(pitr.GetStatus() == ReaderStatus::NotStarted){
