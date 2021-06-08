@@ -11,46 +11,44 @@
 
 title Garage Door Sequence
 
-state "None" as  none
+state "Idle" as idle
+state "Startup" as startup
 state "Open" as  open
-/' state "Moving" as  moving '/
-state "Closed" as  closed
+state "Closed" as closed
 
-'state "MovingToOpen" as  moving_to_open
-'state "MovingToClose" as  moving_to_close
-'state "NoChange" as  no_change
+state "MovingToOpen" as  moving_to_open
+state "MovingToClose" as  moving_to_close
 
 center footer  
 
- this sequence uses only 2 switch inputs from the raspberry pi 
- zero W, up_position and down_position
+ this sequence uses only 2 switch inputs from the raspberry pi zero W, 
+ up_position and down_position read using IsUp and IsDown lambdas respectively.
 
 endfooter
 
-[*] --> none : first call to DoorSensor::Process
-none --> open : up_position = 1 &&\n  down_position = 0
-none --> closed : down_position = 1 &&\n up_position = 0
+[*] --> idle : eGdInit
+idle --> startup : eOnTime
+startup : action: SetMovingLedOff 
+startup --> open : eOnTime[IsUp && !IsDown]
+startup --> closed : eOnTime[!IsUp && IsDown]
 
-/'
-open --> open : up_position = 1
-open --> moving : up_position = 0
 
-moving --> moving : up_position = 0 &&\n down_position = 0
-moving --> closed : down_position = 1
-moving --> open : up_position = 1
+open --> moving_to_close : eOnTime[!IsUp]
+open : on_entry: AddRowForOpen
+open : action: SetMovingLedOff 
 
-closed --> closed : down_position = 1
-closed --> moving : down_position = 0
-'/
+moving_to_close --> closed : eOnTime[IsDown]
+moving_to_close : on_entry: AddRowForMovingToClose
+moving_to_close : action: SetMovingLedOn 
+moving_to_close --> open : eOnTime[IsUp]
 
-open --> moving_to_close : up_position = 0
+moving_to_open --> open : eOnTime[IsUp]
+moving_to_open : on_entry: AddRowForMovingToOpen
+moving_to_open : action: SetMovingLedOn 
+moving_to_open --> closed : eOnTime[IsDown]
 
-moving_to_close --> closed : down_position = 1
-moving_to_close --> open : up_position = 1
-
-moving_to_open --> open : up_position = 1
-moving_to_open --> closed : down_position = 1
-
-closed --> moving_to_open : down_position = 0
+closed --> moving_to_open : eOnTime[!IsDown]
+closed : on_entry: AddRowForClosed
+closed : action: SetMovingLedOff 
 
 @enduml
