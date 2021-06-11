@@ -1,15 +1,15 @@
 # gdoor
 ## Introduction 
-A raspberry pi zero project that:
-1) uses the gpio lib to read digital inputs on some loop rate
-2) write the door status to a sqlite3 database/table (garage/door_state)
+Ths is a raspberry pi zero project that:
+1) uses the gpio lib to reads/write digital io on some loop rate
+2) write the door status, temperature, and humdity to a sqlite3 database/table (garage/door_state)
 3) use php in apache to display the status on a network accessable webpage
 
-This project is just to learn how to do raspberry pi projects. The program is written in c++, since that what I know. And a c++ application is ~16 times faster than a python script. 
+I used this project to learn how to do raspberry pi projects. The program is written in c++, since that what I know best. And c++ applications run about 16 times faster than a python script. 
 
 The raspberry pi zero w/ a 16G sd card can run standard programs and this project will push some assumptions on what I can build and run with moderate performance. 
 
-**Features**
+## Features
 * monitor and record the garage door open/close state 
   * present as a table on the web 
 * includes a "help light" turned on for N minutes triggered with the door opens/closes
@@ -17,19 +17,19 @@ The raspberry pi zero w/ a 16G sd card can run standard programs and this projec
   * use a Si7021 sensor read using I2C
   * present readings as a 24hr chart on the web page
 * runs as a singleton to prevent I/O set from multiple programs
-  * if one instance of gdoor detects another instance it exits
+  * if one instance of gdoor detects another instance, it exits
 * uses a json configuration file for:
   * I/O name and pin assignments
-  * timers or timebase values   
+  * timers and timebase values   
 
-**Hardware**
+## Hardware
 1. Raspberry PI Zero W w/ 5v 2amp power supply
 2. Si7021 sensor
 3. RPi Power Relay Board
 4. mechanical switches and wire for door up/down position
 5. light fixture and ac power cord 
 
-**Software packages and libraries**
+## Software packages and libraries
 1. Raspbian
 2. Apache
 3. Php
@@ -41,16 +41,16 @@ The raspberry pi zero w/ a 16G sd card can run standard programs and this projec
 
 All are the lastest versions. 
 
-**Software structure**
+## Software structure
 Gdoor uses a while loop as the main control structure following these steps:
 1. read inputs
 2. run sequencing code 
 3. set outputs
-4. repeat
-right, this is only a polling structure 
+4. repeat (a polling structure) 
 
-**The configuration file**
-This configuration file is in json format, which is easy to write and edit. I like this configuration format must better that xml. The program uses Boost.PropertyTree to read and parse the file. The PropertyTree library is very easy to use and is a good tool for hierarchical and record based data.
+
+## The configuration file
+This configuration file is in json format, which is easy to write and edit. I like this configuration format much better that xml. The program uses Boost.PropertyTree to read and parse the file. The PropertyTree library is easy to use and a good tool for both hierarchical and record based data.
 
 The config file is shown here: 
 ```
@@ -92,9 +92,9 @@ The config file is shown here:
 
 ref: https://guides.github.com/features/mastering-markdown/
 
-__GPIO phyical wiring__
+## GPIO phyical wiring
 
-__I2C__ Si7021 temperaure and humidity sensor
+**I2C**, Si7021 temperaure and humidity sensor
  name | color | pin 
 ---|---|---
  3.3v | red   |  1 
@@ -102,13 +102,13 @@ __I2C__ Si7021 temperaure and humidity sensor
  SDA  | yel   | 3 
  SCL  | org   | 5 
 
-__Door cycling LED__ An indicator to know that the software is running
+**Door cycling LED**, An indicator to know that the software is running
  name | color | pin 
 ---|---|---
 0v | blk | 39
 gpio27 | yel | 36
 
-__Up/down switches__ Two switch inputs for the door position
+**Up/down switches**, Two switch inputs for the door position
  name | color | pin 
 ---|---|---
 3.3v | red | 17
@@ -116,20 +116,25 @@ __Up/down switches__ Two switch inputs for the door position
 up | gpio23 | org | 33
 down | gpio24 | yel| 35
 
-____typical circuit for the switch inputs____
-![Switch input circuit](/drawings/switch_input.jpg)
+## typical circuit for the switch inputs
+<img src="./drawings/switch_input.jpg" width="400">
 
-
-__Help light__ (stacked connector (relay hat), so the 5/3.3V and 0v pins are not known)
+**Help light**, (stacked connector (relay hat), so the 5/3.3V and 0v pins are not known)
  name | color | pin 
 ---|---|---
-gpio25 | na | 37
+gpio25 | na | 
+
 The light is then connected with L1 to relay C1 and NO1
+
+## Garage door sequencing 
+
+The program uses a a state machine to follow the door position and perform actions for some states. Orginally, I used switch/case and an enumeration for the state maching and that worked fine. The UML state diagram is shown here: 
 
 ![State Machine UML](/drawings/uml_state.jpg)
 
-The project uses the boost::ext sml state machine library. ref: https://boost-ext.github.io/sml/index.html. This is a good project to learn the library since the door sequencing is simple. The transition table is shown here. 
+I decided to try a state machine library improve my own knowledge and make the state logic more readable and chanageable for possible future enhancements.
 
+Now, the program uses the boost::ext sml state machine library. ref: https://boost-ext.github.io/sml/index.html. This is a good project to learn the library since the door sequencing is simple. The transition table is shown here: 
 ```C++
 // garage door sequencing 
 state<Idle1> + event<eGdInit> / SetMovingLedOff = state<Startup>,
@@ -147,42 +152,13 @@ state<MovingToOpen> + event<eOnTime>[IsUp] / SetMovingLedOff = state<Open>,
 state<MovingToOpen> + event<eOnTime>[IsDown] / SetMovingLedOff =state<Closed>
 
 ```
-
-```
-pi@rpz01:~ $ gpio readall
- +-----+-----+---------+------+---+-Pi ZeroW-+---+------+---------+-----+-----+
- | BCM | wPi |   Name  | Mode | V | Physical | V | Mode | Name    | wPi | BCM |
- +-----+-----+---------+------+---+----++----+---+------+---------+-----+-----+
- |     |     |    3.3v |      |   |  1 || 2  |   |      | 5v      |     |     |
- |   2 |   8 |   SDA.1 |   IN | 1 |  3 || 4  |   |      | 5v      |     |     |
- |   3 |   9 |   SCL.1 |   IN | 1 |  5 || 6  |   |      | 0v      |     |     |
- |   4 |   7 | GPIO. 7 |   IN | 1 |  7 || 8  | 0 | IN   | TxD     | 15  | 14  |
- |     |     |      0v |      |   |  9 || 10 | 1 | IN   | RxD     | 16  | 15  |
- |  17 |   0 | GPIO. 0 |   IN | 0 | 11 || 12 | 0 | IN   | GPIO. 1 | 1   | 18  |
- |  27 |   2 | GPIO. 2 |   IN | 0 | 13 || 14 |   |      | 0v      |     |     |
- |  22 |   3 | GPIO. 3 |   IN | 0 | 15 || 16 | 0 | IN   | GPIO. 4 | 4   | 23  |
- |     |     |    3.3v |      |   | 17 || 18 | 0 | IN   | GPIO. 5 | 5   | 24  |
- |  10 |  12 |    MOSI |   IN | 0 | 19 || 20 |   |      | 0v      |     |     |
- |   9 |  13 |    MISO |   IN | 0 | 21 || 22 | 0 | IN   | GPIO. 6 | 6   | 25  |
- |  11 |  14 |    SCLK |   IN | 0 | 23 || 24 | 1 | IN   | CE0     | 10  | 8   |
- |     |     |      0v |      |   | 25 || 26 | 1 | IN   | CE1     | 11  | 7   |
- |   0 |  30 |   SDA.0 |   IN | 1 | 27 || 28 | 1 | IN   | SCL.0   | 31  | 1   |
- |   5 |  21 | GPIO.21 |   IN | 1 | 29 || 30 |   |      | 0v      |     |     |
- |   6 |  22 | GPIO.22 |   IN | 1 | 31 || 32 | 0 | OUT  | GPIO.26 | 26  | 12  |
- |  13 |  23 | GPIO.23 |   IN | 0 | 33 || 34 |   |      | 0v      |     |     |
- |  19 |  24 | GPIO.24 |   IN | 0 | 35 || 36 | 0 | IN   | GPIO.27 | 27  | 16  |
- |  26 |  25 | GPIO.25 |   IN | 0 | 37 || 38 | 0 | IN   | GPIO.28 | 28  | 20  |
- |     |     |      0v |      |   | 39 || 40 | 0 | IN   | GPIO.29 | 29  | 21  |
- +-----+-----+---------+------+---+----++----+---+------+---------+-----+-----+
- | BCM | wPi |   Name  | Mode | V | Physical | V | Mode | Name    | wPi | BCM |
- +-----+-----+---------+------+---+-Pi ZeroW-+---+------+---------+-----+-----+
-```
  
-__Database__ 
- garage.db
-sqlite> .tables
-door_state  readings
+## Database 
 
+garage.db
+
+### door_state schema 
+```
 sqlite> .schema door_state
 CREATE TABLE door_state (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -190,7 +166,9 @@ CREATE TABLE door_state (
   state int not null,
   temperature text not null
 );
-
+```
+### readings schema 
+```
 sqlite> .schema readings
 CREATE TABLE readings (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -200,27 +178,31 @@ CREATE TABLE readings (
   humidity text not null,
   humidity_units text not null
 );
-
+```
 both gdoor and index.php use simple sqlite3_exec() and $db->query()  
 
-__Webpage__
+## Webpage
+
 http://www.rpz01.gleeze.com/
 
-__Program startup__
-_from the command line_ 
+## Program startup
 
+### from the command line 
+```
 usage: ./gdoor [-h] -c <config_file> [-s] 
-  -h, optional, shows this help text, if included other arguments are ignored and the program shows this text
-  -c <config_file>, a json file with the configuration 
-  -s, optional, the io and state information is not printed but error messages are 
+  -h, optional, shows this help text, if included other arguments are
+      ignored and the program shows this text
+  -c, <config_file>, a json file with the configuration 
+  -s, optional, the io and state information is not printed but error
+       messages are 
 Note: a space is required between -c and the config file 
 example: ./gdoor -c config_1.json -s 
-
-_as a service_ 
+```
+## as a service 
 
 /usr/local/bin
 
-__Some interesting classes__
-- sml: used for the state machine logic. see above 
-- OneShot: the Changed() member outputs true once each time the value under test changes. This is useful in the while-loop controller when a digital input changes changes state and you need to set some action once when the change occurs. The idea comes from the basic digital electronics circuit call a one shot.  
-- Reader: This is a base class active object. It is used in the while-loop controller when a feature/reading happens on a timed interval. The time-base has one second resolution. It's used for these three features: reading the Pi Temperature, reading the Si7021 temperature and humidity, and setting the help light.  
+## Some interesting classes
+- sml: used for the state machine logic. The nice thing about sml is the writable and readable state machine transition table. Sml is not an easy library to use; it can be difficult to get data in and out of and compile errors are virtually unreadable because of the layering of templates.
+- OneShot: the Changed() member outputs true once each time the value under test changes. This is useful in the while-loop controller when a digital input changes state and you need to set some action once only on change. The idea comes from the basic digital electronics circuit of the same name.  
+- Reader: This is a base class active object. It's used in the while-loop controller when a feature/reading happens on a timed interval. The time-base has one second resolution. It's used for these three features: reading the Pi temperature, reading the Si7021 temperature and humidity, and setting the help light. The Reader class refactors conditions and flags that can happen with interval based features used in a time based while-loop.   
