@@ -47,8 +47,8 @@ int ParseCommandLine::Parse(int argc, char **argv) {
     }
     else if (arg == COMMAND_LINE_SILENT_FLAG) {
       _silent = true;
-   }
-   else if (arg == COMMAND_LINE_CONFIG_FILE_FLAG) {
+    }
+    else if (arg == COMMAND_LINE_CONFIG_FILE_FLAG) {
 
       // must have arg after flag 
       if (i + 1 < argc) {
