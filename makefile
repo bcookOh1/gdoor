@@ -1,67 +1,41 @@
 # Raspberry pi garage door project
-# Bennett Cook
+# ref: https://www.gnu.org/software/make/manual/html_node/index.html#Top
+# ref: http://nuclear.mutantstargoat.com/articles/make/
+# ref: https://stackoverflow.com/questions/8025766/makefile-auto-dependency-generation
+# ref: http://make.mad-scientist.net/papers/advanced-auto-dependency-generation/
+# update: 7/8/2021
+# author: Bennett Cook
+# desc: build from all *.cpp files in cwd, the "-MMD" option tells gcc to make a 
+#       makefile fragment to compile *.cpp -> *.o with all dependencies. 
+#       So if StateMachine.hpp changes main.o is rebuilt. (?? for project headers only)
 
 # compiler for c++
-CC = g++
+CPP = g++
 
-# compiler flags, all warnings and use c++2a libraries
-CFLAGS = -Wall -std=c++2a 
+src = $(wildcard *.cpp)
+obj = $(src:.cpp=.o)
+dep = $(obj:.o=.d)  # one dependency file for each source
+
+# compiler flags, all warnings and use c++2a libraries, and make dependency files
+# the "CPPFLAGS" macro is automatically included in compile step (very confusing)
+CPPFLAGS = -Wall -std=c++2a -MMD
 
 LFLAGS = -L/usr/lib/arm-linux-gnueabihf -lsqlite3 -lwiringPi -lpthread -lboost_system -lboost_filesystem
 
 # the executable to build
 TARGET = gdoor
 
-all: $(TARGET)
+all: $(TARGET)  # first target so run by default if no command line args
 
-# set cpp macro to display debug cout lines 
-debug: CC += -g
+debug: CPPFLAGS += -g
 debug: $(TARGET)
 
-$(TARGET): main.o UpdateDatabase.o ReadConfigurationFile.o DigitalIO.o ParseCommandLine.o Util.o ProcessCount.o Si7021.o I2C.o Reader.o HelpLightReader.o PiTempReader.o Si7021Reader.o
-	$(CC) $(LFLAGS) -o $(TARGET)  main.o UpdateDatabase.o ReadConfigurationFile.o DigitalIO.o ParseCommandLine.o Util.o ProcessCount.o Si7021.o I2C.o Reader.o HelpLightReader.o PiTempReader.o Si7021Reader.o
+# macros in recipe:  $@ -> target, $^ -> obj 
+$(TARGET): $(obj)
+	$(CPP) -o $@ $^ $(LFLAGS)
 
-main.o: main.cpp StateMachine.hpp
-	$(CC) $(CFLAGS) -c main.cpp 
+-include $(dep)   # include all dep files in the makefile
 
-UpdateDatabase.o: UpdateDatabase.cpp UpdateDatabase.h 
-	$(CC) $(CFLAGS) -c UpdateDatabase.cpp
-
-ReadConfigurationFile.o: ReadConfigurationFile.cpp ReadConfigurationFile.h 
-	$(CC) $(CFLAGS) -c ReadConfigurationFile.cpp
-
-DigitalIO.o: DigitalIO.cpp DigitalIO.h 
-	$(CC) $(CFLAGS) -c DigitalIO.cpp
-
-Util.o: Util.cpp Util.h  
-	$(CC) $(CFLAGS) -c Util.cpp
-
-ParseCommandLine.o: ParseCommandLine.cpp ParseCommandLine.h  
-	$(CC) $(CFLAGS) -c ParseCommandLine.cpp
-
-ProcessCount.o: ProcessCount.cpp ProcessCount.h  
-	$(CC) $(CFLAGS) -c ProcessCount.cpp
-
-Si7021.o: Si7021.cpp Si7021.h 
-	$(CC) $(CFLAGS) -c Si7021.cpp
-
-I2C.o: I2C.cpp I2C.h 
-	$(CC) $(CFLAGS) -c I2C.cpp
-
-Reader.o: Reader.cpp Reader.h  
-	$(CC) $(CFLAGS) -c Reader.cpp
-
-HelpLightReader.o: HelpLightReader.cpp HelpLightReader.h  
-	$(CC) $(CFLAGS) -c HelpLightReader.cpp
-
-PiTempReader.o: PiTempReader.cpp PiTempReader.h  
-	$(CC) $(CFLAGS) -c PiTempReader.cpp
-
-Si7021Reader.o: Si7021Reader.cpp Si7021Reader.h  
-	$(CC) $(CFLAGS) -c Si7021Reader.cpp
-
-
-clean:  
-	$(RM) $(TARGET) 
-	$(RM) *.o 
-	$(RM) *.gch 
+.PHONY: clean
+clean:
+	rm -f $(obj) $(TARGET) $(dep)
